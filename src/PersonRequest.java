@@ -2,7 +2,7 @@
  * Class implementing a request made by a Person for an elevator.
  */
 public class PersonRequest {
-    private int[] time;
+    private float[] time;
     private int floor;
     private boolean u_d;
     private int carButton;
@@ -15,7 +15,7 @@ public class PersonRequest {
      * @param u_d whether the request is to go up or down
      * @param carButton floor button within the elevator which is providing service to the passenger
      */
-    public PersonRequest(int[] time, int floor, boolean u_d, int carButton) {
+    public PersonRequest(float[] time, int floor, boolean u_d, int carButton) {
         this.time = time;
         this.floor = floor;
         this.u_d = u_d;
@@ -24,7 +24,7 @@ public class PersonRequest {
 
     // Getters
 
-    public int[] getTime() {
+    public float[] getTime() {
         return time;
     }
 
