@@ -17,7 +17,7 @@ public class Scheduler implements Runnable{
 
 			while(true) {
 				
-				//controller.ScheduleElevator();
+				controller.schedulerToElevator
 				try {
 					
 					Thread.sleep(1000);

@@ -3,6 +3,9 @@ import java.util.*;
 
 public class Controller {
 
+	private boolean requestAvailable = false;
+	private boolean elevatorFinished = false;
+	private boolean arrivedAtFloor = false;
 	
 	
 	public synchronized void putRequests(ArrayList<PersonRequest> list) {
@@ -23,6 +26,10 @@ public class Controller {
         
 	}
 	
+	private void reset() {
+		
+	}
+	
 	private void Schedule(ArrayList<PersonRequest> list) {
 		for(PersonRequest Command:list) {
 			notifyElevator(Command);
@@ -30,15 +37,18 @@ public class Controller {
 		}
 		
 	}
-private boolean notifyElevator(PersonRequest Command) {
+private void notifyElevator(PersonRequest Command) {
 		
 		if(!(Command == null)) {
+			System.out.println("Elevator is sent " + Command.getTime() + Command.getFloor() + Command.isU_d() + Command.getCarButton());
 			
-		 System.out.println("Elevator is sent " + Command.getTime() + Command.getFloor() + Command.isU_d() + Command.getCarButton());
-			return true;
+		 
+			requestAvailable = true;
 			
 		}
-		return false;
+		else {
+			requestAvailable = false;
+		}
 		
 		
 	}
@@ -51,21 +61,53 @@ private boolean notifyElevator(PersonRequest Command) {
 		return false;
 	}
 	
-	
-	public synchronized void SchedulerToElevator() {
-	
-		while(true) {
+	public synchronized void schedulerToElevator() {
+		
+		while(requestAvailable==false) {
 			try {
 			wait();
-		}catch(InterruptedException e) {
+		}catch(InterruptedException e) {}
 			
-		}
-		
-		
-		
+			System.out.println("Elevator has been scheduled");
+			requestAvailable=false;
+			
 			notifyAll();
 		}
 	}
+	
+public synchronized void ElevatorToScheduler() {
+		
+		while(elevatorFinished==false) {
+			try {
+				wait();
+			
+		
+			
+		}catch(InterruptedException e) {}
+	}
+		System.out.println("Elevator has been finished");
+		elevatorFinished=false;
+		notifyAll();
+		
+		
+	}
+	
+	public synchronized void SchedulerToFloor() {
+		while(arrivedAtFloor==false) {
+			try {
+		
+			wait();
+		}catch(InterruptedException e) {}
+			System.out.println("Elevator has arrived at the floor");
+			notifyAll();
+			
+			
+		
+	}
+	}
+	
+	
+	
 	private boolean Scheduled() {
 		if(true) {
 			return true;
@@ -75,18 +117,7 @@ private boolean notifyElevator(PersonRequest Command) {
 
 		
 	
-	public synchronized void ElevatorToScheduler() {
-		
-		while(true) {
-			try {
-				wait();
-			
-		
-			
-		}catch(InterruptedException e) {}
-	}
-		
-	}
+
 	
 	private boolean ElevatorFinished(){
 		if(true) {
@@ -96,16 +127,7 @@ private boolean notifyElevator(PersonRequest Command) {
 }
 		
 	
-	public synchronized void SchedulerToFloor() {
-		while(true) {
-			try {
-		
-			wait();
-		}catch(InterruptedException e) {
-		}
-		
-	}
-	}
+	
 	private boolean SchduledForFloor() {
 		if(true) {
 			return true;
