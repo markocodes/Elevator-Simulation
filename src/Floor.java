@@ -30,6 +30,7 @@ public class Floor implements Runnable{
 	public void run() {
 		ArrayList<PersonRequest> dataLines = readFile();
 		sendDataToScheduler(dataLines);
+		controller.SchedulerToFloor();
 	}
 	
 	/**

@@ -8,6 +8,7 @@ public class Controller {
 	private boolean arrivedAtFloor = false;
 	
 	
+	
 	public synchronized void putRequests(ArrayList<PersonRequest> list) {
         
 		while(newRequest(list)) {
@@ -26,41 +27,6 @@ public class Controller {
         
 	}
 	
-	private void reset() {
-		
-	}
-	
-	private void Schedule(ArrayList<PersonRequest> list) {
-		for(PersonRequest Command:list) {
-			notifyElevator(Command);
-			
-		}
-		
-	}
-private void notifyElevator(PersonRequest Command) {
-		
-		if(!(Command == null)) {
-			System.out.println("Elevator is sent " + Command.getTime() + Command.getFloor() + Command.isU_d() + Command.getCarButton());
-			
-		 
-			requestAvailable = true;
-			
-		}
-		else {
-			requestAvailable = false;
-		}
-		
-		
-	}
-	
-	private boolean newRequest(ArrayList<PersonRequest> list) {
-		if(!list.isEmpty()) {
-			return true;
-			
-		}
-		return false;
-	}
-	
 	public synchronized void schedulerToElevator() {
 		
 		while(requestAvailable==false) {
@@ -75,6 +41,7 @@ private void notifyElevator(PersonRequest Command) {
 		}
 	}
 	
+
 public synchronized void ElevatorToScheduler() {
 		
 		while(elevatorFinished==false) {
@@ -91,54 +58,85 @@ public synchronized void ElevatorToScheduler() {
 		
 		
 	}
-	
-	public synchronized void SchedulerToFloor() {
-		while(arrivedAtFloor==false) {
-			try {
-		
-			wait();
-		}catch(InterruptedException e) {}
-			System.out.println("Elevator has arrived at the floor");
-			notifyAll();
-			
-			
-		
-	}
-	}
-	
-	
-	
-	private boolean Scheduled() {
-		if(true) {
-			return true;
-		}
-		return false;
-	}
 
+public synchronized void SchedulerToFloor() {
+	while(arrivedAtFloor==false) {
+		try {
+	
+		wait();
+	}catch(InterruptedException e) {}
+		System.out.println("Elevator has arrived at the floor");
+		arrivedAtFloor=false;
+		notifyAll();
+		
 		
 	
-
-	
-	private boolean ElevatorFinished(){
-		if(true) {
-		return true;
-	}
-	return false;
 }
-		
+}
+
 	
 	
-	private boolean SchduledForFloor() {
-		if(true) {
-			return true;
+	private void Schedule(ArrayList<PersonRequest> list) {
+		for(PersonRequest Command:list) {
+			notifyElevator(Command);
+			
 		}
-		return false;
 		
-	
-	
+	}
+private void notifyElevator(PersonRequest Command) {
+		
+		if(!(Command == null)) {
+			notifyScheduler2(Command);
+			
+			System.out.println("Elevator is sent " + Command.getTime() + Command.getFloor() + Command.isU_d() + Command.getCarButton());
+			
+		 
+			requestAvailable = true;
+			
+		}
+		else {
+			requestAvailable = false;
+		}
 		
 		
 	}
+	private void notifyScheduler2(PersonRequest Command) {
+		
+		if(!(Command==null)){
+			notifyFloor(Command);
+		elevatorFinished=true;
+		}
+		else {
+			elevatorFinished=false;
+			
+		}
+	}
+	private void notifyFloor(PersonRequest Command) {
+		if(!(Command == null)) {
+			arrivedAtFloor=true;
+		}
+		else {
+			arrivedAtFloor=false;
+		}
+	}
+	
+	private boolean newRequest(ArrayList<PersonRequest> list) {
+		if(!list.isEmpty()) {
+			return true;
+			
+		}
+		return false;
+	}
+	
+
+	
+
+	
+	
+
+	
+	
+	
 }
 
 	
