@@ -15,7 +15,7 @@ public class Controller {
 	private boolean requestAvailable = false; //If there is a request from the patrons available this will become true
 	private boolean elevatorFinished = false; //Once the elevator has finished its command this will become true
 	private boolean arrivedAtFloor = false; //Once the scheduler has confirmed and sent the data to the floor at the end this will become true
-	
+	int i = 0;
 	
 	
 	/**
@@ -27,8 +27,8 @@ public class Controller {
 	
 	
 	public synchronized void putRequests(ArrayList<PersonRequest> list) {
-        
-		while(newRequest(list)) {
+
+		while(!newRequest(list)) {
         try {
         	wait();
         }catch(InterruptedException e) {
@@ -45,7 +45,7 @@ public class Controller {
 	}
 	
 	/**
-	 * newRequest, will check if the arraylist is empty or not
+	 * newRequest, will check if the arraylist is empty or nott
 	 * 
 	 * 
 	 * @param list this is the arraylist that is used to store the parsed text file
@@ -68,9 +68,12 @@ public class Controller {
 	 * @param list this is the arraylist that is used to store the parsed text file
 	 */
 	private void Schedule(ArrayList<PersonRequest> list) {
-		for(PersonRequest Command:list) {
+		System.out.println("yes");
+		System.out.println(list);
+		for(PersonRequest Command : list) {
+			System.out.println("s\n");
 			notifyElevator(Command);
-			
+			//return;
 		}
 		
 	}
@@ -80,13 +83,13 @@ public class Controller {
 		while(requestAvailable==false) {
 			try {
 			wait();
+			System.out.println("s");
 		}catch(InterruptedException e) {}
-			
+		}
 			System.out.println("Elevator has been scheduled");
 			requestAvailable=false;
 			
 			notifyAll();
-		}
 	}
 	
 
@@ -132,10 +135,11 @@ private void notifyElevator(PersonRequest Command) {
 			notifyScheduler(Command);
 			
 			requestAvailable = true;
-			
+			return;
 		}
 		else {
 			requestAvailable = false;
+			return;
 		}
 		
 		
@@ -147,6 +151,7 @@ private void notifyElevator(PersonRequest Command) {
 			System.out.println("Elevator has completed " + Command.getTime() + Command.getFloor() + Command.isU_d() + Command.getCarButton());
 			notifyFloor(Command);
 		elevatorFinished=true;
+		return;
 		}
 		else {
 			elevatorFinished=false;
@@ -157,25 +162,12 @@ private void notifyElevator(PersonRequest Command) {
 		if(!(Command == null)) {
 			System.out.println("Floor is now at " + Command.getTime() + Command.getFloor() + Command.isU_d() + Command.getCarButton());
 			arrivedAtFloor=true;
+			return;
 		}
 		else {
 			arrivedAtFloor=false;
 		}
 	}
-	
-
-	
-
-	
-
-	
-	
-
-	
-	
-	
 }
 
 	
-		
-		

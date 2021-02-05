@@ -19,6 +19,7 @@ public class Scheduler implements Runnable{
 				
 				controller.schedulerToElevator();
 				controller.SchedulerToFloor();
+				System.out.println("fnis..");
 				try {
 					
 					Thread.sleep(1000);
