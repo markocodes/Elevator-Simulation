@@ -12,10 +12,10 @@ public class ThreadStart {
 			
 			control = new Controller();
 			
-			//elevator = new Thread (new Elevator(control),"Elevator");
+			elevator = new Thread (new Elevator(control),"Elevator");
 			scheduler = new Thread (new Scheduler(control),"Scheduler");
 			floor = new Thread (new Floor(control),"Floor");
-			//elevator.start();
+			elevator.start();
 			scheduler.start();
 			floor.start();
 			

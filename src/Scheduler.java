@@ -7,7 +7,7 @@ public class Scheduler implements Runnable{
 	private Controller controller;
 	
 	/**
-	 * The Floor constructer initializes an instance of Floor and assigns the shared Controller instance
+	 * The Floor constructor initializes an instance of Scheduler and assigns the shared Controller instance
 	 */
 	public Scheduler(Controller controller) {
 		this.controller = controller;
