@@ -45,7 +45,7 @@ public class Controller {
 	}
 	
 	/**
-	 * newRequest, will check if the arraylist is empty or not
+	 * newRequest, will check if the arraylist is empty or nott
 	 * 
 	 * 
 	 * @param list this is the arraylist that is used to store the parsed text file
