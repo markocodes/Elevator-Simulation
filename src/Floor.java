@@ -30,6 +30,7 @@ public class Floor implements Runnable{
 	public void run() {
 		ArrayList<PersonRequest> dataLines = readFile();
 		sendDataToScheduler(dataLines);
+		boolean response = getFromScheduler();
 		controller.SchedulerToFloor();
 	}
 	
@@ -116,5 +117,15 @@ public class Floor implements Runnable{
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {}
+	}
+	
+	public boolean getFromScheduler() {
+        boolean response = false;
+		try {
+        	//response = //TODO: make SchedulerToFloor return the appropriate response value
+			controller.SchedulerToFloor();
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {}
+		return response;
 	}
 }
