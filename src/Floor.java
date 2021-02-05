@@ -30,8 +30,9 @@ public class Floor implements Runnable{
 	public void run() {
 		ArrayList<PersonRequest> dataLines = readFile();
 		sendDataToScheduler(dataLines);
-		boolean response = getFromScheduler();
-		controller.SchedulerToFloor();
+		//boolean response = getFromScheduler();
+		//controller.SchedulerToFloor();
+		
 	}
 	
 	/**
@@ -42,17 +43,22 @@ public class Floor implements Runnable{
 	public ArrayList<PersonRequest> readFile(){
 		ArrayList<PersonRequest> dataLines = new ArrayList<PersonRequest>(); 
 		try {
-			File file = new File("E:\\OneDrive - Carleton University\\Documents\\Riley\\Carleton Winter 2021\\SYSC 3303\\SYSC3303_Project\\src\\input.txt");//TODO: Remove hard coded path and replace with relative path
-		    Scanner scanner = new Scanner(file);
+			//File file = new File("E:\\OneDrive - Carleton University\\Documents\\Riley\\Carleton Winter 2021\\SYSC 3303\\SYSC3303_Project\\src\\input.txt");//TODO: Remove hard coded path and replace with relative path
+			File file = new File("./src/input.txt");
+			Scanner scanner = new Scanner(file);
 		    while (scanner.hasNextLine()) {
 		    	String line = scanner.nextLine();
-		    	parseLine(line);
+		    	dataLines.add(parseLine(line));
+		    	System.out.println(line);
 		    }
 		    scanner.close();
 		    } catch (FileNotFoundException e) {
 		    	System.out.println("An error occurred.");
 		    	e.printStackTrace();
 		    }	
+		System.out.println("yea\n");
+		System.out.println(dataLines);
+		
 		return dataLines;
 	}
 	
@@ -64,7 +70,7 @@ public class Floor implements Runnable{
 	 * @return a PersonRequest object that is parsed from a line from the input file, representing a single request
 	 */
 	public PersonRequest parseLine(String line) {
-		System.out.println(line);
+		//System.out.println(line);
 		
 		//Split the line into an array of substrings
 		//Each substring is parsed below
@@ -99,10 +105,10 @@ public class Floor implements Runnable{
 		int carButton = Integer.parseInt(carButton_string);
 		
 		PersonRequest nextLine = new PersonRequest(time, floor, isUp, carButton);
-		System.out.println(nextLine.getTime()[0] + ":" + nextLine.getTime()[1] + ":" + nextLine.getTime()[2]);
-		System.out.println(nextLine.getFloor());
-		System.out.println(nextLine.isU_d());
-		System.out.println(nextLine.getCarButton());
+		//System.out.println(nextLine.getTime()[0] + ":" + nextLine.getTime()[1] + ":" + nextLine.getTime()[2]);
+		//System.out.println(nextLine.getFloor());
+		//System.out.println(nextLine.isU_d());
+		//System.out.println(nextLine.getCarButton());
 
 		return nextLine;
 	}
