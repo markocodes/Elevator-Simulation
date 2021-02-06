@@ -7,7 +7,7 @@ import java.util.Scanner;
  * Instances of the Floor class are threads that represents floors of an elevator system
  * 
  * @author
- *
+ * @version 2021-02-06
  */
 public class Floor implements Runnable{
 
