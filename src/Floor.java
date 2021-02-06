@@ -29,10 +29,23 @@ public class Floor implements Runnable{
 	 */
 	public void run() {
 		ArrayList<PersonRequest> dataLines = readFile();
-		sendDataToScheduler(dataLines);
-		//boolean response = getFromScheduler();
-		//controller.SchedulerToFloor();
 		
+		System.out.println("Initial messages:");
+		for (PersonRequest line : dataLines) {
+			System.out.println(line.toString());
+		}
+		System.out.println("\n");
+		
+		sendDataToScheduler(dataLines);
+		ArrayList<PersonRequest> responses = getFromElevator();
+		
+		System.out.println("\nReturned messages:");		
+		for (PersonRequest line : responses) {
+			System.out.println(line.toString());
+		}
+		System.out.println("");
+
+		System.out.println("done");		
 	}
 	
 	/**
@@ -49,16 +62,12 @@ public class Floor implements Runnable{
 		    while (scanner.hasNextLine()) {
 		    	String line = scanner.nextLine();
 		    	dataLines.add(parseLine(line));
-		    	System.out.println(line);
 		    }
 		    scanner.close();
 		    } catch (FileNotFoundException e) {
 		    	System.out.println("An error occurred.");
 		    	e.printStackTrace();
-		    }	
-		System.out.println("yea\n");
-		System.out.println(dataLines);
-		
+		    }			
 		return dataLines;
 	}
 	
@@ -120,18 +129,19 @@ public class Floor implements Runnable{
 	 */
 	public void sendDataToScheduler(ArrayList<PersonRequest> dataLines) {
 		controller.putRequests(dataLines);
+		System.out.println("1. Requests put by Floor Thread!");
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {}
 	}
 	
-	public boolean getFromScheduler() {
-        boolean response = false;
+	public ArrayList<PersonRequest> getFromElevator() {
+		ArrayList<PersonRequest> responses = null;
 		try {
-        	//response = //TODO: make SchedulerToFloor return the appropriate response value
-			controller.SchedulerToFloor();
-            Thread.sleep(1000);
+			responses = controller.getResponses();
+			System.out.println("8. Requests obtained by Floor Thread");
+            Thread.sleep(100);
         } catch (InterruptedException e) {}
-		return response;
+		return responses;
 	}
 }
