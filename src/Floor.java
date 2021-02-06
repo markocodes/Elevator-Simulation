@@ -29,9 +29,23 @@ public class Floor implements Runnable{
 	 */
 	public void run() {
 		ArrayList<PersonRequest> dataLines = readFile();
+		
+		System.out.println("Initial messages:");
+		for (PersonRequest line : dataLines) {
+			System.out.println(line.toString());
+		}
+		System.out.println("\n");
+		
 		sendDataToScheduler(dataLines);
-		boolean response = getFromScheduler();
-		controller.SchedulerToFloor();
+		ArrayList<PersonRequest> responses = getFromElevator();
+		
+		System.out.println("\nReturned messages:");		
+		for (PersonRequest line : responses) {
+			System.out.println(line.toString());
+		}
+		System.out.println("");
+
+		System.out.println("done");		
 	}
 	
 	/**
@@ -42,17 +56,18 @@ public class Floor implements Runnable{
 	public ArrayList<PersonRequest> readFile(){
 		ArrayList<PersonRequest> dataLines = new ArrayList<PersonRequest>(); 
 		try {
-			File file = new File("E:\\OneDrive - Carleton University\\Documents\\Riley\\Carleton Winter 2021\\SYSC 3303\\SYSC3303_Project\\src\\input.txt");//TODO: Remove hard coded path and replace with relative path
-		    Scanner scanner = new Scanner(file);
+			//File file = new File("E:\\OneDrive - Carleton University\\Documents\\Riley\\Carleton Winter 2021\\SYSC 3303\\SYSC3303_Project\\src\\input.txt");//TODO: Remove hard coded path and replace with relative path
+			File file = new File("./src/input.txt");
+			Scanner scanner = new Scanner(file);
 		    while (scanner.hasNextLine()) {
 		    	String line = scanner.nextLine();
-		    	parseLine(line);
+		    	dataLines.add(parseLine(line));
 		    }
 		    scanner.close();
 		    } catch (FileNotFoundException e) {
 		    	System.out.println("An error occurred.");
 		    	e.printStackTrace();
-		    }	
+		    }			
 		return dataLines;
 	}
 	
@@ -64,7 +79,7 @@ public class Floor implements Runnable{
 	 * @return a PersonRequest object that is parsed from a line from the input file, representing a single request
 	 */
 	public PersonRequest parseLine(String line) {
-		System.out.println(line);
+		//System.out.println(line);
 		
 		//Split the line into an array of substrings
 		//Each substring is parsed below
@@ -99,10 +114,10 @@ public class Floor implements Runnable{
 		int carButton = Integer.parseInt(carButton_string);
 		
 		PersonRequest nextLine = new PersonRequest(time, floor, isUp, carButton);
-		System.out.println(nextLine.getTime()[0] + ":" + nextLine.getTime()[1] + ":" + nextLine.getTime()[2]);
-		System.out.println(nextLine.getFloor());
-		System.out.println(nextLine.isU_d());
-		System.out.println(nextLine.getCarButton());
+		//System.out.println(nextLine.getTime()[0] + ":" + nextLine.getTime()[1] + ":" + nextLine.getTime()[2]);
+		//System.out.println(nextLine.getFloor());
+		//System.out.println(nextLine.isU_d());
+		//System.out.println(nextLine.getCarButton());
 
 		return nextLine;
 	}
@@ -114,18 +129,19 @@ public class Floor implements Runnable{
 	 */
 	public void sendDataToScheduler(ArrayList<PersonRequest> dataLines) {
 		controller.putRequests(dataLines);
+		System.out.println("1. Requests put by Floor Thread!");
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {}
 	}
 	
-	public boolean getFromScheduler() {
-        boolean response = false;
+	public ArrayList<PersonRequest> getFromElevator() {
+		ArrayList<PersonRequest> responses = null;
 		try {
-        	//response = //TODO: make SchedulerToFloor return the appropriate response value
-			controller.SchedulerToFloor();
-            Thread.sleep(1000);
+			responses = controller.getResponses();
+			System.out.println("8. Requests obtained by Floor Thread");
+            Thread.sleep(100);
         } catch (InterruptedException e) {}
-		return response;
+		return responses;
 	}
 }

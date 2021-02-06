@@ -39,4 +39,16 @@ public class PersonRequest {
     public int getCarButton() {
         return carButton;
     }
+    
+    public String toString() {
+    	String printObject = "";
+    	float[] time = this.time;
+    	for (float elem : time) {
+    		printObject += String.valueOf(elem);
+    		if (!(elem == time[time.length - 1])) {
+    			printObject += ":";
+    		}
+    	}
+    	return printObject;
+    }
 }

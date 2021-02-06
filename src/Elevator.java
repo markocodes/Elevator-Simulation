@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Elevator implements Runnable{
 
 	/**
@@ -14,21 +16,16 @@ public class Elevator implements Runnable{
 	@Override
 	public void run() {
 
-			while(true) {
-				
-				controller.schedulerToElevator();
-				
-				
-				try {
-					
-					Thread.sleep(1000);
-					
-				
+		while(true) {
+			ArrayList<PersonRequest> response = controller.getInstructions();
+			System.out.println("4. Requests obtained by Elevator Thread!");
+			controller.putElevatorResponses(response);
+			System.out.println("5. Requests put by Elevator Thread!");
+			try {
+				Thread.sleep(1000);				
 			}
-				catch(InterruptedException e) {}
-		
-		
-	}
+			catch(InterruptedException e) {}
+		}
 		
 		
 	}
