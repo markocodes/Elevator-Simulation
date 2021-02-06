@@ -56,7 +56,6 @@ public class Floor implements Runnable{
 	public ArrayList<PersonRequest> readFile(){
 		ArrayList<PersonRequest> dataLines = new ArrayList<PersonRequest>(); 
 		try {
-			//File file = new File("E:\\OneDrive - Carleton University\\Documents\\Riley\\Carleton Winter 2021\\SYSC 3303\\SYSC3303_Project\\src\\input.txt");//TODO: Remove hard coded path and replace with relative path
 			File file = new File("./src/input.txt");
 			Scanner scanner = new Scanner(file);
 		    while (scanner.hasNextLine()) {
