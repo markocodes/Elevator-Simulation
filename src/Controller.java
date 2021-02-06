@@ -185,5 +185,23 @@ public class Controller {
 	   notifyAll();
 	   return returnResponses;
    }
+
+   //Getters
+
+	public boolean isRequestAvailable() {
+		return requestAvailable;
+	}
+
+	public boolean isInstructionAvailable() {
+		return instructionAvailable;
+	}
+
+	public boolean isElevatorResponseAvailable() {
+		return elevatorResponseAvailable;
+	}
+
+	public boolean isResponseAvailable() {
+		return responseAvailable;
+	}
 }
 	
