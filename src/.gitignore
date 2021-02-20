@@ -3,3 +3,9 @@
 /Main.class
 /PersonRequest.class
 /FloorTest.class
+/Controller.class
+/ControllerTest.class
+/Scheduler.class
+/ThreadStart.class
+/ElevatorStateMachine.class
+/ElevatorStateMachine$State.class
