@@ -46,7 +46,7 @@ public class Elevator implements Runnable{
 				
 				currentState=State.DOORCLOSED;
 				
-				System.out.println("              Doors are closing " );
+				System.out.println("Doors are closing " );
 				
 			
 				try {
