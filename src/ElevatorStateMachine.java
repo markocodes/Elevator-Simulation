@@ -11,7 +11,7 @@ public class ElevatorStateMachine {
 		DOOROPEN
 	}
 	
-
+	//Trial
 	public static State currentState=State.DOOROPEN;
 	
 	public static long doorCloseTime = 0;
