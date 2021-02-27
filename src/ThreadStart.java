@@ -1,11 +1,6 @@
 
 public class ThreadStart {
-		/**
-		 *
-		 * 
-		 * @param args
-		 * 
-		 */
+
 		public static void main(String[] args) {
 			Thread  elevator, floor, scheduler;
 			Controller control;
