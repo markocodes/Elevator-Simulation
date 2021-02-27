@@ -41,14 +41,27 @@ public class PersonRequest {
     }
     
     public String toString() {
+    	//Print the time
     	String printObject = "";
     	float[] time = this.time;
     	for (float elem : time) {
-    		printObject += String.valueOf(elem);
     		if (!(elem == time[time.length - 1])) {
+    			printObject += String.valueOf((int)elem);
     			printObject += ":";
+    		} else {
+    			printObject += String.valueOf((int)elem);
     		}
     	}
+    	
+    	//Print the floor number
+    	printObject += " " + getFloor();
+    	
+    	//Print Up or Down to represent desired direction
+    	printObject += " " + ((isU_d())?"Up":"Down");
+    	
+    	//Print the elevator 
+    	printObject += " " + getCarButton();
+    	
     	return printObject;
     }
 }
