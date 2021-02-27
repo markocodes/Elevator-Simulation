@@ -8,18 +8,17 @@ public class Elevator implements Runnable{
 		MOVING,
 		STOPPED
 	}
-	
 
 	/**
 	 * Shared controller instance, used as the medium to pass data between threads
 	 */
 	private Controller controller;
-	public State currentState=State.DOOROPEN;
+	private State currentState=State.DOOROPEN;
 	
 
-	public ArrayList<PersonRequest> response;
-	public ArrayList<Integer> destination;
-	public int CurrentFloor=1;
+	private ArrayList<PersonRequest> response;
+	private ArrayList<Integer> destination;
+	private int CurrentFloor=1;
 	
 	/**
 	 * The Floor constructor initializes an instance of Scheduler and assigns the shared Controller instance
