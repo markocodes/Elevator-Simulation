@@ -14,7 +14,6 @@ public class Elevator implements Runnable {
 	public ArrayList<PersonRequest> response;
 	public ArrayList<Integer> destination;
 	public int CurrentFloor = 1;
-
 	/**
 	 * The Floor constructor initializes an instance of Scheduler and assigns the
 	 * shared Controller instance
@@ -38,8 +37,8 @@ public class Elevator implements Runnable {
 					if (request.getFloor() != CurrentFloor) {
 						destination.add(request.getFloor());
 					}
-				destination.add(request.getCarButton());
-				destination.sort(null);
+					destination.add(request.getCarButton());
+					destination.sort(null);
 				}
 				System.out.println(destination.toString());
 				currentState = State.DOORCLOSED;
@@ -64,9 +63,10 @@ public class Elevator implements Runnable {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				
 			}
 			if (currentState == State.MOVING) {
-				
+
 				currentState = State.STOPPED;
 				System.out.println("              Elevator has stopped");
 				try {
