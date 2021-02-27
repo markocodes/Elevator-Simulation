@@ -11,8 +11,7 @@ public class Scheduler implements Runnable{
 		WAIT_FOR_FLOOR_REQUEST,
 		SCHEDULING,
 		SENDING_REQUEST_TO_ELEVATOR,
-		WAIT_FOR_ELEVATOR_COMPLETION,
-		NONE // Temp state
+		WAIT_FOR_ELEVATOR_COMPLETION
 	}
 
 	private ArrayList<PersonRequest> instructions = null;

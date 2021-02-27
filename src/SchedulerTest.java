@@ -21,7 +21,7 @@ class SchedulerTest {
     
     @BeforeEach
     void setUp() {
-    	//
+
         controller = new Controller();
         scheduler = new Scheduler(controller);
 
@@ -44,6 +44,9 @@ class SchedulerTest {
     }
 
     @Test
+    /**
+     * Test the execution of the scheduler state machine.
+     */
     public void testStates() throws InterruptedException {
         assertEquals(Scheduler.State.WAIT_FOR_FLOOR_REQUEST, scheduler.getCurrentState());
 

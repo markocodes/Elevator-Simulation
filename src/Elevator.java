@@ -26,77 +26,75 @@ public class Elevator implements Runnable{
 	public Elevator(Controller controller) {
 		this.controller = controller;
 	}
+
+	public State getCurrentState() {
+		return currentState;
+	}
+
 	@Override
 	public void run() {
 		destination = new ArrayList<Integer>();
-		while(true) {
-			if(currentState == State.DOOROPEN) {
+		while (true) {
+			if (currentState == State.DOOROPEN) {
 				response = controller.getInstructions();
 				System.out.println("4. Requests obtained by Elevator Thread!");
-				if(response.get(0).getFloor() != CurrentFloor){
-					
-					destination.add(response.get(0).getFloor());
-					
+				for (PersonRequest request : response) {
+					if (request.getFloor() != CurrentFloor) {
+						destination.add(request.getFloor());
+					}
+					destination.add(request.getCarButton());
+					destination.sort(null);
 				}
-			
-					destination.add(response.get(0).getCarButton());
-					System.out.println(destination.toString());
-				
-				
-				currentState=State.DOORCLOSED;
-				
-				System.out.println("              Doors are closing " );
-				
-			
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			
-			if(currentState == State.DOORCLOSED ) {
-				
-				currentState = State.MOVING;
-				System.out.println("              Elevator is moving");  
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			if(currentState == State.MOVING ) {
-				
-				currentState = State.STOPPED;
-				System.out.println("              Elevator has stopped");  
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-				
-			
-			
-			
-			if(currentState == State.STOPPED) {
-				controller.putElevatorResponses(response);
-				System.out.println("5. Requests put by Elevator Thread!");
-				currentState=State.DOOROPEN;
+				System.out.println(destination.toString());
+				currentState = State.DOORCLOSED;
+
+				System.out.println("Doors are closing ");
 
 				try {
-					Thread.sleep(1000);				
+					Thread.sleep(3000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-				catch(InterruptedException e) {}
 			}
-				
-				
+			if (currentState == State.DOORCLOSED) {
+
+				currentState = State.MOVING;
+				System.out.println("              Elevator is moving");
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+			if (currentState == State.MOVING) {
+
+				currentState = State.STOPPED;
+				System.out.println("              Elevator has stopped");
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+			if (currentState == State.STOPPED) {
+				controller.putElevatorResponses(response);
+				System.out.println("5. Requests put by Elevator Thread!");
+				currentState = State.DOOROPEN;
+
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+				}
+			}
 		}
+	}
 }
-}
+
 		
 			
 		
