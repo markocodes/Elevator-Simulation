@@ -29,7 +29,6 @@ public class Scheduler implements Runnable{
 	}
 	@Override
 	public void run() {
-
 			while(true) {
 
 				if(currentState == State.WAIT_FOR_FLOOR_REQUEST) {
@@ -63,5 +62,8 @@ public class Scheduler implements Runnable{
 			}
 	}
 
+	public State getCurrentState() {
+		return currentState;
+	}
 }
 	
