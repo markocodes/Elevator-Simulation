@@ -13,8 +13,7 @@ public class ThreadStart {
 			elevator.start();
 			scheduler.start();
 			floor.start();
-			
-			
+
 		}
 	}
 

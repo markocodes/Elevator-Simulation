@@ -55,16 +55,13 @@ class SchedulerTest {
         Thread.sleep(2000);
 
         //elevator gets
-        ArrayList<PersonRequest> instructions = controller.getInstructions();
+        int instructions = controller.getInstructions();
         assertEquals( Scheduler.State.SENDING_REQUEST_TO_ELEVATOR, scheduler.getCurrentState());
 
         //elevator puts elevator responses 
         controller.putElevatorResponses(instructions);
         Thread.sleep(2000);
-        
-        //floor gets responses
-        ArrayList<PersonRequest> responses = controller.getResponses();
-        
+
         assertEquals( Scheduler.State.WAIT_FOR_FLOOR_REQUEST, scheduler.getCurrentState());
         
         System.out.println("Scheduler Test Successful!!!");

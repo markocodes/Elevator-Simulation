@@ -44,16 +44,9 @@ class ControllerTest {
      */
     @Test
     public void testInstructions(){
-        PersonRequest personRequest1 = new PersonRequest(new float[]{1}, 4, true, 2);
-        PersonRequest personRequest2 = new PersonRequest(new float[]{2}, 5, true, 3);
-        ArrayList<PersonRequest> personRequests = new ArrayList<>();
+        controller.putInstructions(3);
 
-        personRequests.add(personRequest1);
-        personRequests.add(personRequest2);
-
-        controller.putInstructions(personRequests);
-
-        assertEquals(personRequests, controller.getInstructions());
+        assertEquals(3, controller.getInstructions());
         assertFalse(controller.isInstructionAvailable());
     }
 
@@ -62,16 +55,11 @@ class ControllerTest {
      */
     @Test
     public void testElevatorResponses(){
-        PersonRequest personRequest1 = new PersonRequest(new float[]{1}, 4, true, 2);
-        PersonRequest personRequest2 = new PersonRequest(new float[]{2}, 5, true, 3);
-        ArrayList<PersonRequest> personRequests = new ArrayList<>();
 
-        personRequests.add(personRequest1);
-        personRequests.add(personRequest2);
 
-        controller.putElevatorResponses(personRequests);
+        controller.putElevatorResponses(3);
 
-        assertEquals(personRequests, controller.getElevatorResponses());
+        assertEquals(3, controller.getElevatorResponses());
         assertFalse(controller.isElevatorResponseAvailable());
     }
 
@@ -81,16 +69,9 @@ class ControllerTest {
      */
     @Test
     public void testResponses(){
-        PersonRequest personRequest1 = new PersonRequest(new float[]{1}, 4, true, 2);
-        PersonRequest personRequest2 = new PersonRequest(new float[]{2}, 5, true, 3);
-        ArrayList<PersonRequest> personRequests = new ArrayList<>();
+        controller.putResponses(3);
 
-        personRequests.add(personRequest1);
-        personRequests.add(personRequest2);
-
-        controller.putResponses(personRequests);
-
-        assertEquals(personRequests, controller.getResponses());
+        assertEquals(3, controller.getResponses());
         assertFalse(controller.isResponseAvailable());
     }
 
