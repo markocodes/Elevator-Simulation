@@ -10,3 +10,6 @@
 /ElevatorStateMachine.class
 /ElevatorStateMachine$State.class
 /Elevator$State.class
+/ElevatorTest.class
+/Scheduler$State.class
+/SchedulerTest.class
