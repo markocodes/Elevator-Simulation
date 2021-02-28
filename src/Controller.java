@@ -21,7 +21,7 @@ public class Controller {
 	private ArrayList<PersonRequest> requests; //Stores data transferring from Floor -> Scheduler
 	private int instructions;//Stores data transferring from scheduler -> Elevator
 	private int elevatorResponses;//Stores data transferring from Elevator -> Floor
-	private ArrayList<PersonRequest> responses;//Stores data transferring from Elevator -> Floor
+	private int responses;//Stores data transferring from Elevator -> Floor
 	
 	
 	/**
@@ -151,7 +151,7 @@ public class Controller {
 	 * 
 	 * @param list this is the ArrayList that is used to store the parsed text file
 	 */
-	public synchronized void putResponses(ArrayList<PersonRequest> list) {
+	public synchronized void putResponses(int floor) {
 		while(responseAvailable) {
 	        try {
 	        	wait();
@@ -159,8 +159,8 @@ public class Controller {
 	        	System.err.println(e);
 	        }
 		}
-		if(!list.isEmpty()) {
-			responses = list;
+		if(floor > 0) {
+			responses = floor;
 			responseAvailable = true;
 			notifyAll();
 		}
@@ -171,16 +171,16 @@ public class Controller {
 	 * 
 	 * @return responses, an ArrayList of PersonRequest objects used to generate response objects that will be returned to the Floor object
 	 */
-	public synchronized ArrayList<PersonRequest> getResponses() {
+	public synchronized int getResponses() {
        while (!responseAvailable) {
            try {
                wait();
            } catch (InterruptedException e) {
-               return null;
+               return -1;
            }
        }
-       ArrayList<PersonRequest> returnResponses = responses;
-       responses  = null;
+       int returnResponses = responses;
+       responses  = 0;
        responseAvailable = false;
 	   notifyAll();
 	   return returnResponses;

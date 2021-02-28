@@ -37,15 +37,13 @@ public class Floor implements Runnable{
 		System.out.println("\n");
 		
 		sendDataToScheduler(dataLines);
-		ArrayList<PersonRequest> responses = getFromElevator();
-		
-		System.out.println("\nReturned messages:");		
-		for (PersonRequest line : responses) {
-			System.out.println(line.toString());
+		while(true) {
+			int responses = getFromElevator();
+			
+			System.out.println("Floor notified that elevator arrived at floor " + responses);		
+			System.out.println("done");	
+			System.out.println("");
 		}
-		System.out.println("");
-
-		System.out.println("done");		
 	}
 	
 	/**
@@ -134,8 +132,8 @@ public class Floor implements Runnable{
         } catch (InterruptedException e) {}
 	}
 	
-	public ArrayList<PersonRequest> getFromElevator() {
-		ArrayList<PersonRequest> responses = null;
+	public int getFromElevator() {
+		int responses = 0;
 		try {
 			responses = controller.getResponses();
 			System.out.println("8. Requests obtained by Floor Thread");
