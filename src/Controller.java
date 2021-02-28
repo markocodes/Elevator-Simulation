@@ -19,8 +19,8 @@ public class Controller {
 	private boolean responseAvailable = false; //True when a thread is accessing the responses variable (critical region)
 	
 	private ArrayList<PersonRequest> requests; //Stores data transferring from Floor -> Scheduler
-	private ArrayList<PersonRequest> instructions;//Stores data transferring from scheduler -> Elevator
-	private ArrayList<PersonRequest> elevatorResponses;//Stores data transferring from Elevator -> Floor
+	private int instructions;//Stores data transferring from scheduler -> Elevator
+	private int elevatorResponses;//Stores data transferring from Elevator -> Floor
 	private ArrayList<PersonRequest> responses;//Stores data transferring from Elevator -> Floor
 	
 	
@@ -71,7 +71,7 @@ public class Controller {
 	 * 
 	 * @param list this is the ArrayList that is used to store the parsed text file
 	 */
-	public synchronized void putInstructions(ArrayList<PersonRequest> list) {
+	public synchronized void putInstructions(int instruction) {
 		while(instructionAvailable) {
 	        try {
 	        	wait();
@@ -79,8 +79,8 @@ public class Controller {
 	        	System.err.println(e);
 	        }
 		}
-		if(!list.isEmpty()) {
-			instructions = list;
+		if(instruction > 0) {
+			instructions = instruction;
 			instructionAvailable = true;
 			notifyAll();
 		}
@@ -91,16 +91,16 @@ public class Controller {
 	 * 
 	 * @return returnInstructions, an ArrayList of PersonRequet objects used to generate response objects that will be returned to the Floor object
 	 */
-	public synchronized ArrayList<PersonRequest> getInstructions() {
+	public synchronized int getInstructions() {
         while (!instructionAvailable) {
             try {
                 wait();
             } catch (InterruptedException e) {
-                return null;
+                return 0;
             }
         }
-        ArrayList<PersonRequest> returnInstructions = instructions;
-        instructions  = null;
+        int returnInstructions = instructions;
+        instructions  = 0;
         instructionAvailable = false;
 	    notifyAll();
 	    return returnInstructions;
@@ -111,7 +111,7 @@ public class Controller {
 	 * 
 	 * @param list this is the ArrayList that is used to store the parsed text file
 	 */
-	public synchronized void putElevatorResponses(ArrayList<PersonRequest> list) {
+	public synchronized void putElevatorResponses(int response) {
 		while(elevatorResponseAvailable) {
 	        try {
 	        	wait();
@@ -119,8 +119,8 @@ public class Controller {
 	        	System.err.println(e);
 	        }
 		}
-		if(!list.isEmpty()) {
-			elevatorResponses = list;
+		if(response > 0) {
+			elevatorResponses = response;
 			elevatorResponseAvailable = true;
 			notifyAll();
 		}
@@ -131,16 +131,16 @@ public class Controller {
 	 * 
 	 * @return returnElevatorResponses, an ArrayList of PersonRequest objects used to generate response objects
 	 */
-	public synchronized ArrayList<PersonRequest> getElevatorResponses() {
+	public synchronized int getElevatorResponses() {
         while (!elevatorResponseAvailable) {
             try {
                 wait();
             } catch (InterruptedException e) {
-                return null;
+                return 0;
             }
         }
-        ArrayList<PersonRequest> returnElevatorResponses = elevatorResponses;
-        elevatorResponses  = null;
+        int returnElevatorResponses = elevatorResponses;
+        elevatorResponses  = 0;
         elevatorResponseAvailable = false;
 	    notifyAll();
 	    return returnElevatorResponses;

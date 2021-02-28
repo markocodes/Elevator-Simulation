@@ -16,7 +16,7 @@ public class Elevator implements Runnable{
 	private State currentState=State.DOOROPEN;
 	
 
-	private ArrayList<PersonRequest> response;
+	private int response;
 	private ArrayList<Integer> destination;
 	private int CurrentFloor=1;
 	
@@ -38,11 +38,11 @@ public class Elevator implements Runnable{
 			if (currentState == State.DOOROPEN) {
 				response = controller.getInstructions();
 				System.out.println("4. Requests obtained by Elevator Thread!");
-				for (PersonRequest request : response) {
-					if (request.getFloor() != CurrentFloor) {
-						destination.add(request.getFloor());
-					}
-					destination.add(request.getCarButton());
+				
+					if (response != CurrentFloor) {
+						destination.add(response);
+					
+					
 					destination.sort(null);
 				}
 				System.out.println(destination.toString());
