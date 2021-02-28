@@ -45,10 +45,9 @@ public class Elevator implements Runnable{
 					
 					destination.sort(null);
 				}
-				System.out.println(destination.toString());
 				currentState = State.DOORCLOSED;
 
-				System.out.println("Doors are closing ");
+				System.out.println("              Doors are closing ");
 
 				try {
 					Thread.sleep(3000);

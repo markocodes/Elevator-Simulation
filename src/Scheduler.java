@@ -11,12 +11,14 @@ public class Scheduler implements Runnable{
 		WAIT_FOR_FLOOR_REQUEST,
 		SCHEDULING,
 		SENDING_REQUEST_TO_ELEVATOR,
-		WAIT_FOR_ELEVATOR_COMPLETION
+		WAIT_FOR_ELEVATOR_COMPLETION,
+		NONE // Temp state
 	}
 
-	private ArrayList<PersonRequest> instructions = null;
-	private ArrayList<PersonRequest> elevatorResponses = null;
-
+	private int instructions = -1;
+	private int elevatorResponses = -1;
+	private ArrayList<PersonRequest> requests = null;
+	private ArrayList<Integer> floors = null;
 
 	
 	/**
@@ -28,14 +30,28 @@ public class Scheduler implements Runnable{
 	}
 	@Override
 	public void run() {
+		floors = new ArrayList<Integer>();
 			while(true) {
 
 				if(currentState == State.WAIT_FOR_FLOOR_REQUEST) {
-					instructions = controller.getRequests();
+					if (requests == null) {
+							requests = controller.getRequests();
+							for (PersonRequest req : requests) {
+								floors.add(req.getFloor());
+								floors.add(req.getCarButton());
+							}
+					}
+					if (floors.isEmpty()) {
+						continue;
+					}
 					System.out.println("2. Requests obtained by Scheduler Thread!");
 					currentState = State.SCHEDULING;
 				}
 				else if(currentState == State.SCHEDULING) {
+					//Determine the optimal sequence of floors to visit
+					System.out.println("Floors To visit: " + floors);
+					System.out.println("Signaling Elevator to service floor " + floors.get(0));
+					instructions = floors.remove(0);
 					controller.putInstructions(instructions);
 					System.out.println("3. Requests put by Scheduler Thread!");
 					currentState = State.SENDING_REQUEST_TO_ELEVATOR;
@@ -46,6 +62,7 @@ public class Scheduler implements Runnable{
 					currentState = State.WAIT_FOR_ELEVATOR_COMPLETION;
 				}
 				else if(currentState == State.WAIT_FOR_ELEVATOR_COMPLETION){
+					//controller.putResponses(elevatorResponses);
 					controller.putResponses(elevatorResponses);
 					System.out.println("7. Requests put by Scheduler Thread!");
 					currentState = State.WAIT_FOR_FLOOR_REQUEST;
