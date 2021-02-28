@@ -23,12 +23,7 @@ class ElevatorTest {
         Thread elevatorThread = new Thread(testElevator);
         elevatorThread.start();
 
-        float[] testTime = {14,5,(float) 15.2};
-        PersonRequest personRequest1 = new PersonRequest(testTime, 4, true, 2);
-        PersonRequest personRequest2 = new PersonRequest(testTime, 5, true, 3);
-        ArrayList<PersonRequest> personRequests = new ArrayList<>();
-        personRequests.add(personRequest1);
-        personRequests.add(personRequest2);
+        int personRequests = 2;
 
         //Check first state or idle state at start up
         assertEquals(Elevator.State.DOOROPEN,testElevator.getCurrentState());

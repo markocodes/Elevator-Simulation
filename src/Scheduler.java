@@ -5,22 +5,19 @@ public class Scheduler implements Runnable{
 	/**
 	 * Shared controller instance, used as the medium to pass data between threads
 	 */
-	private Controller controller;
+	private final Controller controller;
 	private State currentState;
 	enum State {
 		WAIT_FOR_FLOOR_REQUEST,
 		SCHEDULING,
 		SENDING_REQUEST_TO_ELEVATOR,
 		WAIT_FOR_ELEVATOR_COMPLETION,
-		NONE // Temp state
 	}
 
-	private int instructions = -1;
 	private int elevatorResponses = -1;
 	private ArrayList<PersonRequest> requests = null;
-	private ArrayList<Integer> floors = null;
 
-	
+
 	/**
 	 * The Floor constructor initializes an instance of Scheduler and assigns the shared Controller instance
 	 */
@@ -28,11 +25,11 @@ public class Scheduler implements Runnable{
 		this.controller = controller;
 		currentState = State.WAIT_FOR_FLOOR_REQUEST;
 	}
+
 	@Override
 	public void run() {
-		floors = new ArrayList<Integer>();
+		ArrayList<Integer> floors = new ArrayList<Integer>();
 			while(true) {
-
 				if(currentState == State.WAIT_FOR_FLOOR_REQUEST) {
 					if (requests == null) {
 							requests = controller.getRequests();
@@ -51,7 +48,7 @@ public class Scheduler implements Runnable{
 					//Determine the optimal sequence of floors to visit
 					System.out.println("Floors To visit: " + floors);
 					System.out.println("Signaling Elevator to service floor " + floors.get(0));
-					instructions = floors.remove(0);
+					int instructions = floors.remove(0);
 					controller.putInstructions(instructions);
 					System.out.println("3. Requests put by Scheduler Thread!");
 					currentState = State.SENDING_REQUEST_TO_ELEVATOR;
@@ -78,6 +75,10 @@ public class Scheduler implements Runnable{
 			}
 	}
 
+	/**
+	 * Get current state of scheduler
+	 * @return State of scheduler
+	 */
 	public State getCurrentState() {
 		return currentState;
 	}

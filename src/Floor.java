@@ -54,7 +54,7 @@ public class Floor implements Runnable{
 	public ArrayList<PersonRequest> readFile(){
 		ArrayList<PersonRequest> dataLines = new ArrayList<PersonRequest>(); 
 		try {
-			File file = new File("input.txt");
+			File file = new File("src/input.txt");
 			Scanner scanner = new Scanner(file);
 		    while (scanner.hasNextLine()) {
 		    	String line = scanner.nextLine();

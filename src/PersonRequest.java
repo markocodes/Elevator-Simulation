@@ -2,10 +2,10 @@
  * Class implementing a request made by a Person for an elevator.
  */
 public class PersonRequest {
-    private float[] time;
-    private int floor;
-    private boolean u_d;
-    private int carButton;
+    private final float[] time;
+    private final int floor;
+    private final boolean u_d;
+    private final int carButton;
 
 
     /**
@@ -42,26 +42,26 @@ public class PersonRequest {
     
     public String toString() {
     	//Print the time
-    	String printObject = "";
+    	StringBuilder printObject = new StringBuilder();
     	float[] time = this.time;
     	for (float elem : time) {
     		if (!(elem == time[time.length - 1])) {
-    			printObject += String.valueOf((int)elem);
-    			printObject += ":";
+    			printObject.append(String.valueOf((int) elem));
+    			printObject.append(":");
     		} else {
-    			printObject += String.valueOf((int)elem);
+    			printObject.append(String.valueOf((int) elem));
     		}
     	}
     	
     	//Print the floor number
-    	printObject += " " + getFloor();
+    	printObject.append(" ").append(getFloor());
     	
     	//Print Up or Down to represent desired direction
-    	printObject += " " + ((isU_d())?"Up":"Down");
+    	printObject.append(" ").append((isU_d()) ? "Up" : "Down");
     	
     	//Print the elevator 
-    	printObject += " " + getCarButton();
+    	printObject.append(" ").append(getCarButton());
     	
-    	return printObject;
+    	return printObject.toString();
     }
 }
