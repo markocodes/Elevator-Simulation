@@ -1,3 +1,7 @@
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.*;
 
 
@@ -15,16 +19,17 @@ public class Elevator implements Runnable{
 	private Controller controller;
 	private State currentState=State.DOOROPEN;
 	
-
+	private boolean up;
 	private int response;
 	private ArrayList<Integer> destination;
-	private int CurrentFloor=1;
+	private int currentFloor;
 	
 	/**
 	 * The Floor constructor initializes an instance of Scheduler and assigns the shared Controller instance
 	 */
-	public Elevator(Controller controller) {
-		this.controller = controller;
+	public Elevator(int curFloor) {
+		this.currentFloor = curFloor;
+		this.up = false;
 	}
 
 	public State getCurrentState() {
@@ -34,15 +39,38 @@ public class Elevator implements Runnable{
 	@Override
 	public void run() {
 		destination = new ArrayList<Integer>();
+		try {
+			DatagramSocket socket = new DatagramSocket(69);	//Creates socket bound to port 69
 		while (true) {
 			if (currentState == State.DOOROPEN) {
-				response = controller.getInstructions();
+				byte[] requestByteArray = "request".getBytes();
+				boolean receieved = false; //defines a flag to check for receieving a actual packet vs a nothing to report packet ("null")
+				DatagramPacket recievedPacket = new DatagramPacket(new byte[17], 17);	//Creates a packet to recieve into
+				DatagramPacket requestPacket = new DatagramPacket(requestByteArray, requestByteArray.length, InetAddress.getLocalHost(), 23);
+
+				while(!receieved) {	//Loop until a non null packet is recieved
+//					printPacket(requestPacket, true);
+					socket.send(requestPacket);	//Send a request to the intermediate server
+					socket.receive(recievedPacket);	//Receive the response
+//					printPacket(recievedPacket, false);
+					if(!(new String(recievedPacket.getData()).trim().equals("NA"))) {//If the response is not null, ie. a actual response
+						receieved=true;	//Break out of loop
+					}
+					Thread.sleep(1000);
+				}
+				byte[] temp = recievedPacket.getData();
+				int dest = temp[0];
+				if(currentFloor < dest) {
+					up = true;
+				}
+				else if(currentFloor > dest) {
+					up = false;
+				}
+				
 				System.out.println("4. Requests obtained by Elevator Thread!");
 				
-					if (response != CurrentFloor) {
+					if (response != currentFloor) {
 						destination.add(response);
-					
-					
 					destination.sort(null);
 				}
 				currentState = State.DOORCLOSED;
@@ -69,7 +97,29 @@ public class Elevator implements Runnable{
 
 			}
 			if (currentState == State.MOVING) {
-
+				boolean stop = false;
+				while(!stop) {	
+					int destFloor = currentFloor;
+					byte[] requestByteArray = String.valueOf(destFloor).getBytes();
+					DatagramPacket recievedPacket = new DatagramPacket(new byte[17], 17);	//Creates a packet to recieve into
+					DatagramPacket requestPacket = new DatagramPacket(requestByteArray, requestByteArray.length, InetAddress.getLocalHost(), 23);
+					//Loop until a non null packet is recieved
+//					printPacket(requestPacket, true);
+					socket.send(requestPacket);	//Send a request to the intermediate server
+					socket.receive(recievedPacket);	//Receive the response
+//					printPacket(recievedPacket, false);
+					if(!(new String(recievedPacket.getData()).trim().equals("stop"))) {//If the response is not null, ie. a actual response
+						stop=true;	//Break out of loop
+					}
+					Thread.sleep(1000);
+					if (up) {
+						currentFloor++;
+					}
+					else if(!up) {
+						currentFloor--;
+					}
+				}
+				
 				currentState = State.STOPPED;
 				System.out.println("              Elevator has stopped");
 				try {
@@ -91,7 +141,41 @@ public class Elevator implements Runnable{
 				}
 			}
 		}
+		
+		
+	} catch (IOException | InterruptedException e) {
+		e.printStackTrace();
 	}
+	
+}
+	
+/**
+ * This method prints the information in recievedPacket, formatted according to if it was sent or recieved
+ * @param receivedPacket takes in the packet to be printed
+ * @param sending Boolean value that indicates if the packet is to be sent, or was recieved
+ */
+public static void printPacket(DatagramPacket receivedPacket, boolean sending) {
+	if(!sending) {	//If the packet was recieved
+	System.out.println("Server: Received the following packet (String): " + new String(receivedPacket.getData())); //Print data as string (Binary values will not appear correctly in the string, 
+	System.out.println("Recived the following packet (Bytes): ");											//but this is what the assignment said to do)
+	for (int z = 0; z < receivedPacket.getData().length - 1; z++) {					//Prints the byte array one index at a time
+		System.out.print(receivedPacket.getData()[z] + ", ");
+	}
+	System.out.println(receivedPacket.getData()[receivedPacket.getData().length - 1]);
+	System.out.println("From:" + receivedPacket.getAddress() + " on port: "+ receivedPacket.getPort()); 	//Prints the address and port the packet was recieved on
+	System.out.println("");	//Adds a newline between packet sending and receiving
+	}else {			//The packet is being sent
+		System.out.println("Server: Sending the following packet (String): " + new String(receivedPacket.getData()));//Print data as string (Binary values will not appear correctly in the string, 
+		System.out.println("Sending the following packet (Bytes): ");										//but this is what the assignment said to do)
+		for (int z = 0; z < receivedPacket.getData().length - 1; z++) {			//Prints the byte array one index at a time
+			System.out.print(receivedPacket.getData()[z] + ", ");
+		}
+		System.out.println(receivedPacket.getData()[receivedPacket.getData().length - 1]);
+		System.out.println("To:" + receivedPacket.getAddress() + " on port: "+ receivedPacket.getPort());	//Prints the address and port the packet is being sent to
+		System.out.println("");	//Adds a newline between packet sending and receiving
+
+	}
+}
 }
 
 		
