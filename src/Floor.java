@@ -50,8 +50,7 @@ public class Floor implements Runnable{
 				printPacket(replyPacket, false);
 				boolean receieved = false; //defines a flag to check for receieving a actual packet vs a nothing to report packet ("null")
 				DatagramPacket receivedPacket = new DatagramPacket(new byte[20], 20); //Creates a new packet for receiving
-				byte[] requestByteArray = "request".getBytes(); //Convert "request" into a byte array to send
-				int endDetection = 0; //Defines counter which detects the end of the program
+				/**byte[] requestByteArray = "request".getBytes(); //Convert "request" into a byte array to send
 				while (!receieved) { //Loop until a not null packet is recieved
 					DatagramPacket requestPacket = new DatagramPacket(requestByteArray, requestByteArray.length, local, 24);
 					socket.send(requestPacket); //Send a request to the intermediate server
@@ -61,20 +60,16 @@ public class Floor implements Runnable{
 					if (!(new String(receivedPacket.getData()).trim().equals("NA"))) {//If the response is not null, ie. a actual response
 						printPacket(receivedPacket, false);
 						numberOfSuccessfulPackets++;
-						System.out.println("Client has received " + numberOfSuccessfulPackets + " packets so far");
+						System.out.println("Floor has received " + numberOfSuccessfulPackets + " packets so far");
 						receieved = true; //Break out of loop
 					}
-					endDetection++;
-					if (endDetection == 5) {
-						break;
-					}
+
 					Thread.sleep(1000);
-				}
-				printPacket(receivedPacket, false); //Prints the packet recieved
+				}*/
+				//printPacket(receivedPacket, false); //Prints the packet recieved
 			}
-			System.out.println("Client is finished. It has receievd " + numberOfSuccessfulPackets + " successful packets. (Should be 10)");
 			socket.close(); //Close the socket
-		} catch (IOException | InterruptedException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -188,7 +183,7 @@ public class Floor implements Runnable{
 
 	public static void printPacket(DatagramPacket receivedPacket, boolean sending) {
 		if (!sending) { //If the packet was recieved
-			System.out.println("Client: Received the following packet (String): " + new String(receivedPacket.getData())); //Print data as string (Binary values will not appear correctly in the string, 
+			System.out.println("Floor: Received the following packet (String): " + new String(receivedPacket.getData())); //Print data as string (Binary values will not appear correctly in the string, 
 			System.out.println("Recived the following packet (Bytes): "); //but this is what the assignment said to do)
 			for (int z = 0; z < receivedPacket.getData().length - 1; z++) { //Prints the byte array one index at a time
 				System.out.print(receivedPacket.getData()[z] + ", ");
@@ -197,7 +192,7 @@ public class Floor implements Runnable{
 			System.out.println("From:" + receivedPacket.getAddress() + " on port: " + receivedPacket.getPort()); //Prints the address and port the packet was recieved on
 			System.out.println(""); //Adds a newline between packet sending and receiving
 		} else { //The packet is being sent
-			System.out.println("Client: Sending the following packet (String): " + new String(receivedPacket.getData()));//Print data as string (Binary values will not appear correctly in the string, 
+			System.out.println("Floor: Sending the following packet (String): " + new String(receivedPacket.getData()));//Print data as string (Binary values will not appear correctly in the string, 
 			System.out.println("Sending the following packet (Bytes): "); //but this is what the assignment said to do)
 			for (int z = 0; z < receivedPacket.getData().length - 1; z++) { //Prints the byte array one index at a time
 				System.out.print(receivedPacket.getData()[z] + ", ");

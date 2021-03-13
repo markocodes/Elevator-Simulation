@@ -43,6 +43,7 @@ public class Elevator implements Runnable{
 		destination = new ArrayList<Integer>();
 		try {
 			DatagramSocket socket = new DatagramSocket(port);	//Creates socket bound to each elevators port
+			while(true) {
 			if (currentState == State.DOOROPEN) {
 				byte[] requestByteArray = "request".getBytes();
 				boolean receieved = false; //defines a flag to check for receieving a actual packet vs a nothing to report packet ("null")
@@ -60,8 +61,10 @@ public class Elevator implements Runnable{
 					Thread.sleep(1000);
 				}
 				byte[] temp = recievedPacket.getData();
-				int dest = temp[0];
+				int dest = Integer.parseInt((new String(temp)).replaceAll("[^\\d.]", ""));
 				if(currentFloor < dest) {
+					System.out.println("!!!!!!!!!!!!!!!"+dest);
+					System.out.println("!!!!!!!!!!!!!!!"+currentFloor);
 					up = true;
 				}
 				else if(currentFloor > dest) {
@@ -141,13 +144,12 @@ public class Elevator implements Runnable{
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 				}
+		
 			}
-		
-		
-		
-	} catch (IOException | InterruptedException e) {
-		e.printStackTrace();
-	}
+			}
+		}catch (IOException | InterruptedException e) {
+				e.printStackTrace();
+			}
 	
 }
 	
