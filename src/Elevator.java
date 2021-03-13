@@ -153,33 +153,37 @@ public class Elevator implements Runnable{
 	
 }
 	
-/**
- * This method prints the information in recievedPacket, formatted according to if it was sent or recieved
- * @param receivedPacket takes in the packet to be printed
- * @param sending Boolean value that indicates if the packet is to be sent, or was recieved
- */
-public static void printPacket(DatagramPacket receivedPacket, boolean sending) {
-	if(!sending) {	//If the packet was recieved
-	System.out.println("Server: Received the following packet (String): " + new String(receivedPacket.getData())); //Print data as string (Binary values will not appear correctly in the string, 
-	System.out.println("Recived the following packet (Bytes): ");											//but this is what the assignment said to do)
-	for (int z = 0; z < receivedPacket.getData().length - 1; z++) {					//Prints the byte array one index at a time
-		System.out.print(receivedPacket.getData()[z] + ", ");
-	}
-	System.out.println(receivedPacket.getData()[receivedPacket.getData().length - 1]);
-	System.out.println("From:" + receivedPacket.getAddress() + " on port: "+ receivedPacket.getPort()); 	//Prints the address and port the packet was recieved on
-	System.out.println("");	//Adds a newline between packet sending and receiving
-	}else {			//The packet is being sent
-		System.out.println("Server: Sending the following packet (String): " + new String(receivedPacket.getData()));//Print data as string (Binary values will not appear correctly in the string, 
-		System.out.println("Sending the following packet (Bytes): ");										//but this is what the assignment said to do)
-		for (int z = 0; z < receivedPacket.getData().length - 1; z++) {			//Prints the byte array one index at a time
+	/**
+	 * This method prints the information in recievedPacket, formatted according to if it was sent or recieved
+	 * @param receivedPacket takes in the packet to be printed
+	 * @param sending Boolean value that indicates if the packet is to be sent, or was recieved
+	 */
+	public static void printPacket(DatagramPacket receivedPacket, boolean sending) {
+		if(!sending) {	//If the packet was recieved
+		System.out.println("Server: Received the following packet (String): " + new String(receivedPacket.getData())); //Print data as string (Binary values will not appear correctly in the string,
+		System.out.println("Recived the following packet (Bytes): ");											//but this is what the assignment said to do)
+		for (int z = 0; z < receivedPacket.getData().length - 1; z++) {					//Prints the byte array one index at a time
 			System.out.print(receivedPacket.getData()[z] + ", ");
 		}
 		System.out.println(receivedPacket.getData()[receivedPacket.getData().length - 1]);
-		System.out.println("To:" + receivedPacket.getAddress() + " on port: "+ receivedPacket.getPort());	//Prints the address and port the packet is being sent to
+		System.out.println("From:" + receivedPacket.getAddress() + " on port: "+ receivedPacket.getPort()); 	//Prints the address and port the packet was recieved on
 		System.out.println("");	//Adds a newline between packet sending and receiving
+		}else {			//The packet is being sent
+			System.out.println("Server: Sending the following packet (String): " + new String(receivedPacket.getData()));//Print data as string (Binary values will not appear correctly in the string,
+			System.out.println("Sending the following packet (Bytes): ");										//but this is what the assignment said to do)
+			for (int z = 0; z < receivedPacket.getData().length - 1; z++) {			//Prints the byte array one index at a time
+				System.out.print(receivedPacket.getData()[z] + ", ");
+			}
+			System.out.println(receivedPacket.getData()[receivedPacket.getData().length - 1]);
+			System.out.println("To:" + receivedPacket.getAddress() + " on port: "+ receivedPacket.getPort());	//Prints the address and port the packet is being sent to
+			System.out.println("");	//Adds a newline between packet sending and receiving
 
+		}
 	}
-}
+
+	public int getPort() {
+		return port;
+	}
 }
 
 		
