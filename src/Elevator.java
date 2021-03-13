@@ -14,7 +14,7 @@ public class Elevator implements Runnable{
 	}
 
 	/**
-	 * Shared controller instance, used as the medium to pass data between threads
+	 * Shared controller instance, used as the medium to pass data between threads.
 	 */
 
 	private State currentState=State.DOOROPEN;

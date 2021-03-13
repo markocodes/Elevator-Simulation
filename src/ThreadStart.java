@@ -1,6 +1,6 @@
 
 public class ThreadStart {
-
+	//Starts all threads
 		public static void main(String[] args) {
 			Thread  elevator1,elevator2,elevator3,elevator4, floor, scheduler_thread1, scheduler_thread2;
 						

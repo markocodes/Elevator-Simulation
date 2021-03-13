@@ -219,8 +219,5 @@ public class Floor implements Runnable{
 		return arr;
 	}
 	
-	public static void main(String[] args) {
-		Thread floor = new Thread(new Floor());
-		floor.run();
-	}
+	
 }
