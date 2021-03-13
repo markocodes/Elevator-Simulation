@@ -16,7 +16,7 @@ import java.util.Scanner;
 public class Floor implements Runnable{
 
 	/**
-	 * The Floor constructor initializes an instance of Floor and assigns the shared Controller instance
+	 * The Floor constructor initializes an instance of Floor
 	 */
 	public Floor() {
 		
@@ -31,7 +31,7 @@ public class Floor implements Runnable{
 
 		try {
 			int numberOfSuccessfulPackets = 0;
-			DatagramSocket socket = new DatagramSocket(22); //Creates a new socket. This will be used for sending and recieving packets
+			DatagramSocket socket = new DatagramSocket(5000); //Creates a new socket. This will be used for sending and recieving packets
 			//			socket.setSoTimeout(5000); //Sets the timeout value to 5 seconds. If 5 seconds elapses and no packet arrives on receive, an exception will be thrown
 			InetAddress local = InetAddress.getLocalHost(); //Gets the local address of the computer 
 
