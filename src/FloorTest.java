@@ -9,14 +9,14 @@ import org.junit.jupiter.api.Test;
  * Test class for the Floor class
  *
  * @author Group 5
- * @version 2021-02-06
+ * @version 2021-03-13
  */
 class FloorTest{
 
 
 	@Test
 	/**
-	 * Test FloorSocket() method
+	 * Test that floor sockets are working properly
 	 */
 
 	void FloorSocketTest() {

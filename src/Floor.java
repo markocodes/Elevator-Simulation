@@ -8,19 +8,17 @@ import java.net.InetAddress;
 import java.util.Scanner; 
 
 /**
- * Instances of the Floor class are threads that represents floors of an elevator system
+ * Implements the floor class which represents the floors of the system.
  * 
- * @author
- * @version 2021-02-06
+ * @author Group 5
+ * @version 2021-03-13
  */
 public class Floor implements Runnable{
 
 	/**
 	 * The Floor constructor initializes an instance of Floor
 	 */
-	public Floor() {
-		
-	}
+	public Floor() {}
 
 	/**
 	 * The run method initiates thread execution.
@@ -50,22 +48,22 @@ public class Floor implements Runnable{
 				printPacket(replyPacket, false);
 				boolean receieved = false; //defines a flag to check for receieving a actual packet vs a nothing to report packet ("null")
 				DatagramPacket receivedPacket = new DatagramPacket(new byte[20], 20); //Creates a new packet for receiving
-				/**byte[] requestByteArray = "request".getBytes(); //Convert "request" into a byte array to send
-				while (!receieved) { //Loop until a not null packet is recieved
-					DatagramPacket requestPacket = new DatagramPacket(requestByteArray, requestByteArray.length, local, 24);
-					socket.send(requestPacket); //Send a request to the intermediate server
-					//					printPacket(requestPacket, true);
-					socket.receive(receivedPacket); //Recieve the response
-					//					printPacket(receivedPacket, false);
-					if (!(new String(receivedPacket.getData()).trim().equals("NA"))) {//If the response is not null, ie. a actual response
-						printPacket(receivedPacket, false);
-						numberOfSuccessfulPackets++;
-						System.out.println("Floor has received " + numberOfSuccessfulPackets + " packets so far");
-						receieved = true; //Break out of loop
-					}
-
-					Thread.sleep(1000);
-				}*/
+//				byte[] requestByteArray = "request".getBytes(); //Convert "request" into a byte array to send
+//				while (!receieved) { //Loop until a not null packet is recieved
+//					DatagramPacket requestPacket = new DatagramPacket(requestByteArray, requestByteArray.length, local, 24);
+//					socket.send(requestPacket); //Send a request to the intermediate server
+//					//					printPacket(requestPacket, true);
+//					socket.receive(receivedPacket); //Recieve the response
+//					//					printPacket(receivedPacket, false);
+//					if (!(new String(receivedPacket.getData()).trim().equals("NA"))) {//If the response is not null, ie. a actual response
+//						printPacket(receivedPacket, false);
+//						numberOfSuccessfulPackets++;
+//						System.out.println("Floor has received " + numberOfSuccessfulPackets + " packets so far");
+//						receieved = true; //Break out of loop
+//					}
+//
+//					Thread.sleep(1000);
+//				}
 				//printPacket(receivedPacket, false); //Prints the packet recieved
 			}
 			socket.close(); //Close the socket
@@ -80,7 +78,7 @@ public class Floor implements Runnable{
 	 * @return and ArrayList of PersonRequest objects
 	 */
 	public  ArrayList<PersonRequest> readFile(){
-		ArrayList<PersonRequest> dataLines = new ArrayList<PersonRequest>(); 
+		ArrayList<PersonRequest> dataLines = new ArrayList<>();
 		try {
 			File file = new File("input.txt");
 			Scanner scanner = new Scanner(file);
@@ -152,26 +150,25 @@ public class Floor implements Runnable{
 	 * 
 	 * @param dataLines is the ArrayList of PersonRequest objects that are read and parsed from the input file
 	 */
-	/**public void sendDataToScheduler(ArrayList<PersonRequest> dataLines) {
-		controller.putRequests(dataLines);
-		System.out.println("1. Requests put by Floor Thread!");
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {}
-	}
-	*/
+//	public void sendDataToScheduler(ArrayList<PersonRequest> dataLines) {
+//		controller.putRequests(dataLines);
+//		System.out.println("1. Requests put by Floor Thread!");
+//		try {
+//			Thread.sleep(1000);
+//		} catch (InterruptedException e) {}
+//	}
 
-	/**
-	 public int getFromElevator() {
-		int responses = 0;
-		try {
-			responses = controller.getResponses();
-			System.out.println("8. Requests obtained by Floor Thread");
-            Thread.sleep(100);
-        } catch (InterruptedException e) {}
-		return responses;
-	}
-	 */
+
+
+//	 public int getFromElevator() {
+//		int responses = 0;
+//		try {
+//			responses = controller.getResponses();
+//			System.out.println("8. Requests obtained by Floor Thread");
+//            Thread.sleep(100);
+//        } catch (InterruptedException e) {}
+//		return responses;
+//	}
 
 
 	/**
@@ -205,14 +202,13 @@ public class Floor implements Runnable{
 	}
 
 	/**
-	 * 
-	 * @param i
-	 * @return
+	 * Convert person request to an array of bytes
+	 *
+	 * @param req Request being sent
+	 * @return request converted to array of bytes
 	 */
 	public static byte[] generateByteArray(PersonRequest req) {
 		byte[] arr = req.toString().getBytes();
 		return arr;
 	}
-	
-	
 }

@@ -5,6 +5,13 @@ import java.net.InetAddress;
 import java.util.*;
 
 
+/**
+ * Implements the Elevator class which represents an elevator car in the system.
+ *
+ * @author Group 5
+ * @version 2021-03-13
+ */
+
 public class Elevator implements Runnable{
 	enum State {
 		DOORCLOSED,
@@ -63,8 +70,8 @@ public class Elevator implements Runnable{
 				byte[] temp = recievedPacket.getData();
 				int dest = Integer.parseInt((new String(temp)).replaceAll("[^\\d.]", ""));
 				if(currentFloor < dest) {
-					System.out.println("!!!!!!!!!!!!!!!"+dest);
-					System.out.println("!!!!!!!!!!!!!!!"+currentFloor);
+//					System.out.println("From: "+dest);
+//					System.out.println("To: "+currentFloor);
 					up = true;
 				}
 				else if(currentFloor > dest) {
@@ -154,14 +161,14 @@ public class Elevator implements Runnable{
 }
 	
 	/**
-	 * This method prints the information in recievedPacket, formatted according to if it was sent or recieved
+	 * This method prints the information in receivedPacket, formatted according to if it was sent or recieved
 	 * @param receivedPacket takes in the packet to be printed
 	 * @param sending Boolean value that indicates if the packet is to be sent, or was recieved
 	 */
 	public static void printPacket(DatagramPacket receivedPacket, boolean sending) {
-		if(!sending) {	//If the packet was recieved
+		if(!sending) {	//If the packet was received
 		System.out.println("Server: Received the following packet (String): " + new String(receivedPacket.getData())); //Print data as string (Binary values will not appear correctly in the string,
-		System.out.println("Recived the following packet (Bytes): ");											//but this is what the assignment said to do)
+		System.out.println("Received the following packet (Bytes): ");											//but this is what the assignment said to do)
 		for (int z = 0; z < receivedPacket.getData().length - 1; z++) {					//Prints the byte array one index at a time
 			System.out.print(receivedPacket.getData()[z] + ", ");
 		}
