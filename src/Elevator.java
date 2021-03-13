@@ -16,18 +16,20 @@ public class Elevator implements Runnable{
 	/**
 	 * Shared controller instance, used as the medium to pass data between threads
 	 */
-	private Controller controller;
+
 	private State currentState=State.DOOROPEN;
 	
 	private boolean up;
 	private int response;
 	private ArrayList<Integer> destination;
 	private int currentFloor;
+	private int port;
 	
 	/**
 	 * The Floor constructor initializes an instance of Scheduler and assigns the shared Controller instance
 	 */
-	public Elevator(int curFloor) {
+	public Elevator(int curFloor,int port) {
+		this.port = port;
 		this.currentFloor = curFloor;
 		this.up = false;
 	}
@@ -40,8 +42,7 @@ public class Elevator implements Runnable{
 	public void run() {
 		destination = new ArrayList<Integer>();
 		try {
-			DatagramSocket socket = new DatagramSocket(69);	//Creates socket bound to port 69
-		while (true) {
+			DatagramSocket socket = new DatagramSocket(port);	//Creates socket bound to each elevators port
 			if (currentState == State.DOOROPEN) {
 				byte[] requestByteArray = "request".getBytes();
 				boolean receieved = false; //defines a flag to check for receieving a actual packet vs a nothing to report packet ("null")
@@ -103,7 +104,7 @@ public class Elevator implements Runnable{
 					byte[] requestByteArray = String.valueOf(destFloor).getBytes();
 					DatagramPacket recievedPacket = new DatagramPacket(new byte[17], 17);	//Creates a packet to recieve into
 					DatagramPacket requestPacket = new DatagramPacket(requestByteArray, requestByteArray.length, InetAddress.getLocalHost(), 22);
-					//Loop until a non null packet is recieved
+					//Loop until a non null packet is received
 //					printPacket(requestPacket, true);
 					socket.send(requestPacket);	//Send a request to the intermediate server
 					socket.receive(recievedPacket);	//Receive the response
@@ -141,7 +142,7 @@ public class Elevator implements Runnable{
 				} catch (InterruptedException e) {
 				}
 			}
-		}
+		
 		
 		
 	} catch (IOException | InterruptedException e) {
