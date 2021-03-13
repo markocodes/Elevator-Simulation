@@ -7,6 +7,12 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Test class for the Elevator class
+ *
+ * @author Group 5
+ * @version 2021-03-13
+ */
 class ElevatorTest {
 
     @BeforeEach
@@ -15,13 +21,11 @@ class ElevatorTest {
 
     @Test
     /**
-     * Test the states of the Elevator Class
+     * Test the ports of elevator are initialized properly.
      *
      * @throws InterruptedException
      */
     void portTest(){
-        Thread  elevatorThread1,elevatorThread2,elevatorThread3,elevatorThread4, floor, scheduler_thread1, scheduler_thread2;
-
         Elevator elevator1 = new Elevator(1,24);
         Elevator elevator2 = new Elevator(1,25);
         Elevator elevator3 = new Elevator(1,26);
@@ -35,7 +39,7 @@ class ElevatorTest {
 
     @Test
     /**
-     * Test ElevatorSocket() method
+     * Test that elevator sockets are working properly.
      */
 
     void ElevatorSocketTest() {

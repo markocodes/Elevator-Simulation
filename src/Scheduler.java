@@ -7,14 +7,21 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
+/**
+ * Implements the scheduler which facilitates communication between floors and elevators and dispatches elevators to complete requests.
+ *
+ * @author Group 5
+ * @version 2021-03-13
+ */
+
 public class Scheduler implements Runnable {
 
 	private State currentState;
 
 	enum State {
-		WAIT_FOR_FLOOR_REQUEST, SCHEDULING, SENDING_REQUEST_TO_ELEVATOR,
-
-		WAIT_FOR_ELEVATOR_COMPLETION, SENDING_REQUEST_TO_FLOOR,
+		WAIT_FOR_FLOOR_REQUEST, SCHEDULING,
+		WAIT_FOR_ELEVATOR_COMPLETION,
+		SENDING_REQUEST_TO_FLOOR,
 	}
 
 	private DatagramSocket receiveSocket;
@@ -31,7 +38,7 @@ public class Scheduler implements Runnable {
 	 * shared Controller instance
 	 */
 	public Scheduler(int portNumber) {
-		queue = new LinkedList<DatagramPacket>();
+		queue = new LinkedList<>();
 		if (portNumber == 23) {
 			currentState = State.WAIT_FOR_FLOOR_REQUEST;
 		} else if (portNumber == 22) {
@@ -56,6 +63,9 @@ public class Scheduler implements Runnable {
 		}
 	}
 
+	/**
+	 * Implements the state cycle that occurs when there is communication going from the floor to elevator.
+	 */
 	public void floorToElevatorFSM() {
 		try {
 			local = InetAddress.getLocalHost(); // Creates inetaddress containing localhost
@@ -118,6 +128,10 @@ public class Scheduler implements Runnable {
 		}
 	}
 
+
+	/**
+	 * Implements the state cylce that occurs when there is communication from the elevator to the floor.
+	 */
 	public void elevatorToFloorFSM() {
 		try {
 			local = InetAddress.getLocalHost(); // Creates inetaddress containing localhost
@@ -195,12 +209,12 @@ public class Scheduler implements Runnable {
 	 * This method prints the information in recievedPacket, formatted according to
 	 * if it was sent or recieved
 	 * 
-	 * @param receivedPacket takes in the packet to be printed
+	 * @param packet takes in the packet to be printed
 	 * @param sending        Boolean value that indicates if the packet is to be
 	 *                       sent, or was recieved
 	 */
 	public void printPacket(DatagramPacket packet, boolean sending) {
-		if (!sending) { // If the packet was recieved
+		if (!sending) { // If the packet was received
 			System.out.println(Thread.currentThread().getName() + ": Received the following packet (String): "
 					+ new String(packet.getData())); // Print data as string (Binary values will not appear
 														// correctly in the string,
