@@ -46,7 +46,7 @@ public class Elevator implements Runnable{
 				byte[] requestByteArray = "request".getBytes();
 				boolean receieved = false; //defines a flag to check for receieving a actual packet vs a nothing to report packet ("null")
 				DatagramPacket recievedPacket = new DatagramPacket(new byte[17], 17);	//Creates a packet to recieve into
-				DatagramPacket requestPacket = new DatagramPacket(requestByteArray, requestByteArray.length, InetAddress.getLocalHost(), 23);
+				DatagramPacket requestPacket = new DatagramPacket(requestByteArray, requestByteArray.length, InetAddress.getLocalHost(), 22);
 
 				while(!receieved) {	//Loop until a non null packet is recieved
 //					printPacket(requestPacket, true);
@@ -102,14 +102,15 @@ public class Elevator implements Runnable{
 					int destFloor = currentFloor;
 					byte[] requestByteArray = String.valueOf(destFloor).getBytes();
 					DatagramPacket recievedPacket = new DatagramPacket(new byte[17], 17);	//Creates a packet to recieve into
-					DatagramPacket requestPacket = new DatagramPacket(requestByteArray, requestByteArray.length, InetAddress.getLocalHost(), 23);
+					DatagramPacket requestPacket = new DatagramPacket(requestByteArray, requestByteArray.length, InetAddress.getLocalHost(), 22);
 					//Loop until a non null packet is recieved
 //					printPacket(requestPacket, true);
 					socket.send(requestPacket);	//Send a request to the intermediate server
 					socket.receive(recievedPacket);	//Receive the response
 //					printPacket(recievedPacket, false);
-					if(!(new String(recievedPacket.getData()).trim().equals("stop"))) {//If the response is not null, ie. a actual response
+					if((new String(recievedPacket.getData()).trim().equals("stop"))) {//If the response is not null, ie. a actual response
 						stop=true;	//Break out of loop
+						break;
 					}
 					Thread.sleep(1000);
 					if (up) {
@@ -131,7 +132,7 @@ public class Elevator implements Runnable{
 
 			}
 			if (currentState == State.STOPPED) {
-				controller.putElevatorResponses(response);
+				//controller.putElevatorResponses(response);
 				System.out.println("5. Requests put by Elevator Thread!");
 				currentState = State.DOOROPEN;
 
