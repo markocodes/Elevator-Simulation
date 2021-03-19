@@ -211,4 +211,10 @@ public class Floor implements Runnable{
 		byte[] arr = req.toString().getBytes();
 		return arr;
 	}
+	public static void main(String[] args) {
+		Thread floor;
+		floor = new Thread (new Floor(),"Floor");
+		floor.start();
+	
+	}
 }

@@ -302,4 +302,12 @@ public class Scheduler implements Runnable {
 
 		return nextLine;
 	}
-}
+	public static void main(String[] args) {
+		Thread scheduler_thread1, scheduler_thread2;
+		scheduler_thread1 = new Thread (new Scheduler(23),"Scheduler_thread1");
+		scheduler_thread2 = new Thread (new Scheduler(22),"Scheduler_thread2");
+		scheduler_thread1.start();
+		scheduler_thread2.start();
+	}
+	}
+
