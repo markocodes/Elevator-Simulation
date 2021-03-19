@@ -187,11 +187,25 @@ public class Elevator implements Runnable{
 
 		}
 	}
+	
 
 	public int getPort() {
 		return port;
 	}
-}
+	public static void main(String[] args) {
+		
+		Thread  elevator1, elevator2,elevator3,elevator4;
+		elevator1 = new Thread (new Elevator(1,24),"Elevator");
+		elevator2 = new Thread (new Elevator(1,25),"Elevator");
+		elevator3 = new Thread (new Elevator(1,26),"Elevator");
+		elevator4 = new Thread (new Elevator(1,27),"Elevator");
+		elevator1.start();
+		elevator2.start();
+		elevator3.start();
+		elevator4.start();
+	}
+	}
+
 
 		
 			
