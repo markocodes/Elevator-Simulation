@@ -37,7 +37,7 @@ public class Scheduler implements Runnable {
 	 * The Floor constructor initializes an instance of Scheduler and assigns the
 	 * shared Controller instance
 	 */
-	public Scheduler(int portNumber) {
+	public Scheduler(int portNumber, String name) {
 		queue = new LinkedList<>();
 		if (portNumber == 23) {
 			currentState = State.WAIT_FOR_FLOOR_REQUEST;
@@ -46,7 +46,7 @@ public class Scheduler implements Runnable {
 		}
 		try {
 			receiveSocket = new DatagramSocket(portNumber);// Initialize a Datagram socket
-			System.out.println(Thread.currentThread().getName() + " is running on port: " + portNumber);
+			System.out.println(name + " is running on port: " + portNumber);
 		} catch (SocketException se) {
 			// The program exits if socket creation failed
 			se.printStackTrace();
@@ -76,7 +76,7 @@ public class Scheduler implements Runnable {
 					// get requests from the floor
 					receivedPacket = new DatagramPacket(new byte[17], 17);
 					receiveSocket.receive(receivedPacket);// Receive a packet
-					System.out.println(receivedPacket.getData());
+					//System.out.println(receivedPacket.getData());
 					printPacket(receivedPacket,false);
 					// printPacket(receivedPacket, false);
 					if (new String(receivedPacket.getData()).trim().equals("request")) { // If the receivedPacket
@@ -108,7 +108,8 @@ public class Scheduler implements Runnable {
 					if (floors.isEmpty()) {
 						continue;
 					}
-					System.out.println("2. Request obtained by Scheduler Thread!");
+//					System.out.println("2. Request obtained by Scheduler Thread!");
+					System.out.println("Request obtained by Scheduler Thread");
 					currentState = State.SCHEDULING;
 				} else if (currentState == State.SCHEDULING) {
 					// Determine the optimal sequence of floors to visit
@@ -304,8 +305,9 @@ public class Scheduler implements Runnable {
 	}
 	public static void main(String[] args) {
 		Thread scheduler_thread1, scheduler_thread2;
-		scheduler_thread1 = new Thread (new Scheduler(23),"Scheduler_thread1");
-		scheduler_thread2 = new Thread (new Scheduler(22),"Scheduler_thread2");
+		scheduler_thread1 = new Thread (new Scheduler(23, "Scheduler Thread 1"),"Scheduler Thread 1");
+		scheduler_thread2 = new Thread (new Scheduler(22, "Scheduler Thread 2"),"Scheduler Thread 2");
+		System.out.println("\n");
 		scheduler_thread1.start();
 		scheduler_thread2.start();
 	}
