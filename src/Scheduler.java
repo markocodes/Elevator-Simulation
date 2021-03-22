@@ -8,7 +8,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 /**
- * Implements the scheduler which facilitates communication between floors and elevators and dispatches elevators to complete requests.
+ * Implements the scheduler which facilitates communication between floors and
+ * elevators and dispatches elevators to complete requests.
  *
  * @author Group 5
  * @version 2021-03-13
@@ -19,9 +20,7 @@ public class Scheduler implements Runnable {
 	private State currentState;
 
 	enum State {
-		WAIT_FOR_FLOOR_REQUEST, SCHEDULING,
-		WAIT_FOR_ELEVATOR_COMPLETION,
-		SENDING_REQUEST_TO_FLOOR,
+		WAIT_FOR_FLOOR_REQUEST, SCHEDULING, WAIT_FOR_ELEVATOR_COMPLETION, SENDING_REQUEST_TO_FLOOR,
 	}
 
 	private DatagramSocket receiveSocket;
@@ -72,7 +71,8 @@ public class Scheduler implements Runnable {
 	}
 
 	/**
-	 * Implements the state cycle that occurs when there is communication going from the floor to elevator.
+	 * Implements the state cycle that occurs when there is communication going from
+	 * the floor to elevator.
 	 */
 	public void floorToElevatorFSM() {
 		try {
@@ -85,8 +85,8 @@ public class Scheduler implements Runnable {
 					// get requests from the floor
 					receivedPacket = new DatagramPacket(new byte[17], 17);
 					receiveSocket.receive(receivedPacket);// Receive a packet
-					//System.out.println(receivedPacket.getData());
-					printPacket(receivedPacket,false);
+					// System.out.println(receivedPacket.getData());
+					printPacket(receivedPacket, false);
 					// printPacket(receivedPacket, false);
 					if (new String(receivedPacket.getData()).trim().equals("request")) { // If the receivedPacket
 																							// was a request
@@ -104,15 +104,16 @@ public class Scheduler implements Runnable {
 						printPacket(ackPacket, true);
 						receiveSocket.send(ackPacket);// acknowledge that packet
 
-						//receivedPacket.setPort(22); // Set the packet's port to the client port
+						// receivedPacket.setPort(22); // Set the packet's port to the client port
 						// queue.add(receivedPacket); // Enqueue the packet
 
 						// extract the floor number that the request is coming from and add it to the
-						// ArrayList floors 
+						// ArrayList floors
 						floors.get(currentElevator).add(parseLine((new String(receivedPacket.getData()))).getFloor());
 						// extract the floor number that the request wants to go to and add it to the
 						// ArrayList floors
-						floors.get(currentElevator).add(parseLine((new String(receivedPacket.getData()))).getCarButton());
+						floors.get(currentElevator)
+								.add(parseLine((new String(receivedPacket.getData()))).getCarButton());
 					}
 					if (floors.isEmpty()) {
 						continue;
@@ -139,9 +140,9 @@ public class Scheduler implements Runnable {
 		}
 	}
 
-
 	/**
-	 * Implements the state cylce that occurs when there is communication from the elevator to the floor.
+	 * Implements the state cylce that occurs when there is communication from the
+	 * elevator to the floor.
 	 */
 	public void elevatorToFloorFSM() {
 		try {
@@ -152,78 +153,93 @@ public class Scheduler implements Runnable {
 			DatagramPacket responsePacket;
 			while (true) {
 				int whichQueue = 0;
-			if (currentState == State.WAIT_FOR_ELEVATOR_COMPLETION) {
-				// get response from elevator
+				if (currentState == State.WAIT_FOR_ELEVATOR_COMPLETION) {
+					// get response from elevator
 
-				// if response is a request return data then send message to the floor -->
-				// switch states here
-				
-				// get requests from the elevator  
-				receivedResponsePacket = new DatagramPacket(new byte[17], 17);
-				receiveSocket.receive(receivedResponsePacket);// Receive a packet
-				// printPacket(receivedResponsePacket, false);
-				printPacket(receivedResponsePacket,false);
-				if (new String(receivedResponsePacket.getData()).trim().equals("request")) {  //TODO: check for an integer rather than "request"
-					//request so add response to queue to be picked up by floor
-					if(receivedResponsePacket.getPort() == 24) {
-						whichQueue = 0;
-					}
-					else if(receivedResponsePacket.getPort() == 25) {
-						whichQueue = 1;
-					}
-					else if(receivedResponsePacket.getPort() == 26) {
-						whichQueue = 2;
-					}
-					else if(receivedResponsePacket.getPort() == 27) {
-						whichQueue = 3;
-					}
-					if (floors.get(whichQueue).isEmpty()) { // If there are no packets to forward
-						ackPacket = new DatagramPacket(negAck, negAck.length, local, receivedResponsePacket.getPort());
+					// if response is a request return data then send message to the floor -->
+					// switch states here
+
+					// get requests from the elevator
+					receivedResponsePacket = new DatagramPacket(new byte[17], 17);
+					receiveSocket.receive(receivedResponsePacket);// Receive a packet
+					// printPacket(receivedResponsePacket, false);
+					printPacket(receivedResponsePacket, false);
+					if (new String(receivedResponsePacket.getData()).trim().equals("request")) { // TODO: check for an
+																									// integer rather
+																									// than "request"
+						if(receivedResponsePacket.getPort() == 24) {
+							whichQueue = 0;
+						}
+						else if(receivedResponsePacket.getPort() == 25) {
+							whichQueue = 1;
+						}
+						else if(receivedResponsePacket.getPort() == 26) {
+							whichQueue = 2;
+						}
+						else if(receivedResponsePacket.getPort() == 27) {
+							whichQueue = 3;
+						}
+						if (floors.get(whichQueue).isEmpty()) { // If there are no packets to forward
+							ackPacket = new DatagramPacket(negAck, negAck.length, local, receivedResponsePacket.getPort());
+							printPacket(ackPacket, true);
+							receiveSocket.send(ackPacket);// acknowledge that packet
+						} else {
+							System.out.println(Thread.currentThread().getName() + ": Request Receieved");
+							floorsInProgress.get(whichQueue).add(floors.get(whichQueue).get(0));
+							responsePacket = new DatagramPacket(String.valueOf(floors.get(whichQueue).get(0)).getBytes(), String.valueOf(floors.get(whichQueue).remove(0)).getBytes().length, local, receivedResponsePacket.getPort());
+							System.out.println("Sending response to elevator");
+							printPacket(responsePacket, true);
+							receiveSocket.send(responsePacket); // Send the first packet waiting
+						}
+
+					} else {// if the receivedResponsePacket was not a request, it must have been data
+						if (receivedResponsePacket.getPort() == 24) {
+							whichQueue = 0;
+						} else if (receivedResponsePacket.getPort() == 25) {
+							whichQueue = 1;
+						} else if (receivedResponsePacket.getPort() == 26) {
+							whichQueue = 2;
+						} else if (receivedResponsePacket.getPort() == 27) {
+							whichQueue = 3;
+						}
+
+						// Determine whether or not the elevator should stop here
+						floorSensor = Integer
+								.parseInt((new String(receivedResponsePacket.getData())).replaceAll("[^\\d.]", ""));
+						System.out.println("Floor sensor triggered for floor " + floorSensor + "!");
+						System.out.println("FloorSensor:  " + floorSensor);
+						if (floorsInProgress.get(whichQueue).contains(floorSensor)) {
+							ackData = "stop".getBytes();
+							floorsInProgress.get(whichQueue)
+									.remove(floorsInProgress.get(whichQueue).indexOf(floorSensor));
+						} else {
+							ackData = "no".getBytes();
+						}
+						ackPacket = new DatagramPacket(ackData, ackData.length, local,
+								receivedResponsePacket.getPort());
 						printPacket(ackPacket, true);
 						receiveSocket.send(ackPacket);// acknowledge that packet
-					} else {
-						System.out.println(Thread.currentThread().getName() + ": Request Receieved");
-						floorsInProgress.get(whichQueue).add(floors.get(whichQueue).get(0));
-						responsePacket = new DatagramPacket(String.valueOf(floors.get(whichQueue).get(0)).getBytes(), String.valueOf(floors.get(whichQueue).remove(0)).getBytes().length, local, receivedResponsePacket.getPort());
-						System.out.println("Sending response to elevator");
-						printPacket(responsePacket, true);
-						receiveSocket.send(responsePacket); // Send the first packet waiting
+						// receivedResponsePacket.setPort(22); // Set the packet's port to the client
+						// port
+						queue.add(receivedResponsePacket); // Enqueue the packet
+						// queue.add(receivedResponsePacket);
+						// if response is data then the elevator is passing a floor (i.e. arrival sensor
+						// triggered)
+						System.out.println("6. Requests obtained by Scheduler Thread!");
 					}
-				} else {// if the receivedResponsePacket was not a request, it must have been data
-					
-					// Determine whether or not the elevator should stop here
-					floorSensor = Integer.parseInt((new String(receivedResponsePacket.getData())).replaceAll("[^\\d.]", ""));
-					System.out.println("Floor sensor triggered for floor " + floorSensor + "!");
-					System.out.println("FloorSensor:  "+ floorSensor);
-					if (floorsInProgress.get(whichQueue).contains(floorSensor)) {
-						ackData = "stop".getBytes();
-						floorsInProgress.get(whichQueue).remove(floorsInProgress.get(whichQueue).indexOf(floorSensor));
-					} else {
-						ackData = "no".getBytes();
-					}
-					ackPacket = new DatagramPacket(ackData, ackData.length, local, receivedResponsePacket.getPort());
-					printPacket(ackPacket, true);
-					receiveSocket.send(ackPacket);// acknowledge that packet
-					//receivedResponsePacket.setPort(22); // Set the packet's port to the client port
-					queue.add(receivedResponsePacket); // Enqueue the packet
-					// queue.add(receivedResponsePacket);
-					// if response is data then the elevator is passing a floor (i.e. arrival sensor
-					// triggered)
-					System.out.println("6. Requests obtained by Scheduler Thread!");
+					currentState = State.SENDING_REQUEST_TO_FLOOR;
+				} else if (currentState == State.SENDING_REQUEST_TO_FLOOR) {
+					// Send response to floor
+					System.out.println("7. Requests put by Scheduler Thread!");
+					currentState = State.WAIT_FOR_ELEVATOR_COMPLETION;
 				}
-				currentState = State.SENDING_REQUEST_TO_FLOOR;
-			} else if (currentState == State.SENDING_REQUEST_TO_FLOOR) {
-				// Send response to floor
-				System.out.println("7. Requests put by Scheduler Thread!");
-				currentState = State.WAIT_FOR_ELEVATOR_COMPLETION;
-			}
 
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
-		}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -233,9 +249,9 @@ public class Scheduler implements Runnable {
 	 * This method prints the information in recievedPacket, formatted according to
 	 * if it was sent or recieved
 	 * 
-	 * @param packet takes in the packet to be printed
-	 * @param sending        Boolean value that indicates if the packet is to be
-	 *                       sent, or was recieved
+	 * @param packet  takes in the packet to be printed
+	 * @param sending Boolean value that indicates if the packet is to be sent, or
+	 *                was recieved
 	 */
 	public void printPacket(DatagramPacket packet, boolean sending) {
 		if (!sending) { // If the packet was received
@@ -247,18 +263,18 @@ public class Scheduler implements Runnable {
 				System.out.print(packet.getData()[z] + ", ");
 			}
 			System.out.println(packet.getData()[packet.getData().length - 1]);
-			System.out.println("From:" + packet.getAddress() + " on port: " + packet.getPort()); 
+			System.out.println("From:" + packet.getAddress() + " on port: " + packet.getPort());
 			System.out.println(""); // Adds a newline between packet sending and receiving
 		} else { // The packet is being sent
 			System.out.println(Thread.currentThread().getName() + ": Sending the following packet (String): "
 					+ new String(packet.getData()));// Print data as string (Binary values will not appear
-															// correctly in the string,
+													// correctly in the string,
 			System.out.println("Sending the following packet (Bytes): "); // but this is what the assignment said to do)
 			for (int z = 0; z < packet.getData().length - 1; z++) { // Prints the byte array one index at a time
 				System.out.print(packet.getData()[z] + ", ");
 			}
 			System.out.println(packet.getData()[packet.getData().length - 1]);
-			System.out.println("To:" + packet.getAddress() + " on port: " + packet.getPort()); 
+			System.out.println("To:" + packet.getAddress() + " on port: " + packet.getPort());
 			System.out.println(""); // Adds a newline between packet sending and receiving
 		}
 	}
@@ -326,13 +342,13 @@ public class Scheduler implements Runnable {
 
 		return nextLine;
 	}
+
 	public static void main(String[] args) {
 		Thread scheduler_thread1, scheduler_thread2;
-		scheduler_thread1 = new Thread (new Scheduler(23, "Scheduler Thread 1"),"Scheduler Thread 1");
-		scheduler_thread2 = new Thread (new Scheduler(22, "Scheduler Thread 2"),"Scheduler Thread 2");
+		scheduler_thread1 = new Thread(new Scheduler(23, "Scheduler Thread 1"), "Scheduler Thread 1");
+		scheduler_thread2 = new Thread(new Scheduler(22, "Scheduler Thread 2"), "Scheduler Thread 2");
 		System.out.println("\n");
 		scheduler_thread1.start();
 		scheduler_thread2.start();
 	}
-	}
-
+}
