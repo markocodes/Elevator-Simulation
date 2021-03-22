@@ -26,10 +26,10 @@ class ElevatorTest {
      * @throws InterruptedException
      */
     void portTest(){
-        Elevator elevator1 = new Elevator(1,24);
-        Elevator elevator2 = new Elevator(1,25);
-        Elevator elevator3 = new Elevator(1,26);
-        Elevator elevator4 = new Elevator(1,27);
+        Elevator elevator1 = new Elevator(1,24,1);
+        Elevator elevator2 = new Elevator(1,25,2);
+        Elevator elevator3 = new Elevator(1,26,3);
+        Elevator elevator4 = new Elevator(1,27,4);
 
         assertEquals(elevator1.getPort(), 24);
         assertEquals(elevator2.getPort(), 25);

@@ -30,8 +30,8 @@ public class Scheduler implements Runnable {
 	private DatagramPacket receivedPacket, receivedResponsePacket, ackPacket;
 	private int elevatorResponses = -1;
 	private ArrayList<PersonRequest> requests = null;
-	private static ArrayList<Integer> floors = new ArrayList<Integer>();
-	private static ArrayList<Integer> floorsInProgress = new ArrayList<Integer>();
+	private static ArrayList<ArrayList<Integer>> floors = new ArrayList<ArrayList<Integer>>();
+	private static ArrayList<ArrayList<Integer>> floorsInProgress = new ArrayList<ArrayList<Integer>>();
 
 	/**
 	 * The Floor constructor initializes an instance of Scheduler and assigns the
@@ -39,6 +39,14 @@ public class Scheduler implements Runnable {
 	 */
 	public Scheduler(int portNumber, String name) {
 		queue = new LinkedList<>();
+		floors.add(new ArrayList<Integer>());
+		floors.add(new ArrayList<Integer>());
+		floors.add(new ArrayList<Integer>());
+		floors.add(new ArrayList<Integer>());
+		floorsInProgress.add(new ArrayList<Integer>());
+		floorsInProgress.add(new ArrayList<Integer>());
+		floorsInProgress.add(new ArrayList<Integer>());
+		floorsInProgress.add(new ArrayList<Integer>());
 		if (portNumber == 23) {
 			currentState = State.WAIT_FOR_FLOOR_REQUEST;
 		} else if (portNumber == 22) {
@@ -71,6 +79,7 @@ public class Scheduler implements Runnable {
 			local = InetAddress.getLocalHost(); // Creates inetaddress containing localhost
 			byte[] ackData = "ack".getBytes(); // Defines ack byte array
 			byte[] negAck = "NA".getBytes();
+			int currentElevator = 0;
 			while (true) {
 				if (currentState == State.WAIT_FOR_FLOOR_REQUEST) {
 					// get requests from the floor
@@ -100,10 +109,10 @@ public class Scheduler implements Runnable {
 
 						// extract the floor number that the request is coming from and add it to the
 						// ArrayList floors 
-						floors.add(parseLine((new String(receivedPacket.getData()))).getFloor());
+						floors.get(currentElevator).add(parseLine((new String(receivedPacket.getData()))).getFloor());
 						// extract the floor number that the request wants to go to and add it to the
 						// ArrayList floors
-						floors.add(parseLine((new String(receivedPacket.getData()))).getCarButton());
+						floors.get(currentElevator).add(parseLine((new String(receivedPacket.getData()))).getCarButton());
 					}
 					if (floors.isEmpty()) {
 						continue;
@@ -114,8 +123,9 @@ public class Scheduler implements Runnable {
 				} else if (currentState == State.SCHEDULING) {
 					// Determine the optimal sequence of floors to visit
 					System.out.println("Floors To visit: " + floors);
-					System.out.println("Signaling Elevator to service floor " + floors.get(0));
+					System.out.println("Signaling Elevator to service floor " + floors.get(currentElevator).get(0));
 					// int instructions = floors.remove(0);
+					currentElevator = (currentElevator + 1) % 4;
 					currentState = State.WAIT_FOR_FLOOR_REQUEST;
 				}
 				try {
@@ -141,6 +151,7 @@ public class Scheduler implements Runnable {
 			int floorSensor;
 			DatagramPacket responsePacket;
 			while (true) {
+				int whichQueue = 0;
 			if (currentState == State.WAIT_FOR_ELEVATOR_COMPLETION) {
 				// get response from elevator
 
@@ -154,14 +165,26 @@ public class Scheduler implements Runnable {
 				printPacket(receivedResponsePacket,false);
 				if (new String(receivedResponsePacket.getData()).trim().equals("request")) {  //TODO: check for an integer rather than "request"
 					//request so add response to queue to be picked up by floor
-					if (floors.isEmpty()) { // If there are no packets to forward
+					if(receivedResponsePacket.getPort() == 24) {
+						whichQueue = 0;
+					}
+					else if(receivedResponsePacket.getPort() == 25) {
+						whichQueue = 1;
+					}
+					else if(receivedResponsePacket.getPort() == 26) {
+						whichQueue = 2;
+					}
+					else if(receivedResponsePacket.getPort() == 27) {
+						whichQueue = 3;
+					}
+					if (floors.get(whichQueue).isEmpty()) { // If there are no packets to forward
 						ackPacket = new DatagramPacket(negAck, negAck.length, local, receivedResponsePacket.getPort());
 						printPacket(ackPacket, true);
 						receiveSocket.send(ackPacket);// acknowledge that packet
 					} else {
 						System.out.println(Thread.currentThread().getName() + ": Request Receieved");
-						floorsInProgress.add(floors.get(0));
-						responsePacket = new DatagramPacket(String.valueOf(floors.get(0)).getBytes(), String.valueOf(floors.remove(0)).getBytes().length, local, receivedResponsePacket.getPort());
+						floorsInProgress.get(whichQueue).add(floors.get(whichQueue).get(0));
+						responsePacket = new DatagramPacket(String.valueOf(floors.get(whichQueue).get(0)).getBytes(), String.valueOf(floors.get(whichQueue).remove(0)).getBytes().length, local, receivedResponsePacket.getPort());
 						System.out.println("Sending response to elevator");
 						printPacket(responsePacket, true);
 						receiveSocket.send(responsePacket); // Send the first packet waiting
@@ -170,11 +193,11 @@ public class Scheduler implements Runnable {
 					
 					// Determine whether or not the elevator should stop here
 					floorSensor = Integer.parseInt((new String(receivedResponsePacket.getData())).replaceAll("[^\\d.]", ""));
-					System.out.println("floor sensor triggered for floor " + floorSensor + "!");
-					System.out.println("floorSensor:  "+ floorSensor);
-					if (floorsInProgress.contains(floorSensor)) {
+					System.out.println("Floor sensor triggered for floor " + floorSensor + "!");
+					System.out.println("FloorSensor:  "+ floorSensor);
+					if (floorsInProgress.get(whichQueue).contains(floorSensor)) {
 						ackData = "stop".getBytes();
-						floorsInProgress.remove(floorsInProgress.indexOf(floorSensor));
+						floorsInProgress.get(whichQueue).remove(floorsInProgress.get(whichQueue).indexOf(floorSensor));
 					} else {
 						ackData = "no".getBytes();
 					}
@@ -284,7 +307,7 @@ public class Scheduler implements Runnable {
 		if (isUp_string.equals("Up")) {
 			isUp = true;
 		} else if (isUp_string.equals("Down")) {
-			isUp = true;
+			isUp = false;
 		} else {
 			System.out.println("ERROR: Failed to parse file!!!");
 		}
