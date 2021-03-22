@@ -206,6 +206,15 @@ public class Floor implements Runnable {
 	}
 
 	public static void main(String[] args) {
+		
+
+		Scanner reader = new Scanner(System.in);  // Reading from System.in
+		System.out.println("Enter how many floors your want ");
+		int floorCount = reader.nextInt(); // Scans the next token of the input as an int.
+		//once finished
+		reader.close();
+		
+		
 		Thread floor1,floor2,floor3,floor4,floor5,floor6,floor7;
 		floor1 = new Thread(new Floor(1,5000), "Floor1");
 		floor2 = new Thread(new Floor(2,5001), "Floor2");
@@ -214,13 +223,31 @@ public class Floor implements Runnable {
 		floor5 = new Thread(new Floor(5,5004), "Floor5");
 		floor6 = new Thread(new Floor(6,5005), "Floor6");
 		floor7 = new Thread(new Floor(7,5006), "Floor7");
-		floor1.start();
-		floor2.start();
-		floor3.start();
-		floor4.start();
-		floor5.start();
-		floor6.start();
-		floor7.start();
-
+		
+		for(int i = 0;i<floorCount;i++) {
+			if(i==0) {
+				floor1.start();
+			}
+			else if(i==1) {
+				floor2.start();
+			}
+			else if(i==2) {
+				floor3.start();
+			}
+			else if(i==3) {
+				floor4.start();
+			}
+			else if(i==4) {
+				floor5.start();
+			}
+			else if(i==5) {
+				floor6.start();
+			}
+			else if(i==6) {
+				floor7.start();
+			}
+			
+		}
+		
 	}
 }
