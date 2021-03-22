@@ -61,10 +61,8 @@ public class Elevator implements Runnable{
 				DatagramPacket requestPacket = new DatagramPacket(requestByteArray, requestByteArray.length, InetAddress.getLocalHost(), 22);
 
 				while(!receieved) {	//Loop until a non null packet is recieved
-//					printPacket(requestPacket, true);
 					socket.send(requestPacket);	//Send a request to the intermediate server
 					socket.receive(recievedPacket);	//Receive the response
-//					printPacket(recievedPacket, false);
 					if(!(new String(recievedPacket.getData()).trim().equals("NA"))) {//If the response is not null, ie. a actual response
 						receieved=true;	//Break out of loop
 					}
@@ -73,8 +71,6 @@ public class Elevator implements Runnable{
 				byte[] temp = recievedPacket.getData();
 				int dest = Integer.parseInt((new String(temp)).replaceAll("[^\\d.]", ""));
 				if(currentFloor < dest) {
-//					System.out.println("From: "+dest);
-//					System.out.println("To: "+currentFloor);
 					up = true;
 				}
 				else if(currentFloor > dest) {
@@ -118,10 +114,8 @@ public class Elevator implements Runnable{
 					DatagramPacket recievedPacket = new DatagramPacket(new byte[17], 17);	//Creates a packet to recieve into
 					DatagramPacket requestPacket = new DatagramPacket(requestByteArray, requestByteArray.length, InetAddress.getLocalHost(), 22);
 					//Loop until a non null packet is received
-//					printPacket(requestPacket, true);
 					socket.send(requestPacket);	//Send a request to the intermediate server
 					socket.receive(recievedPacket);	//Receive the response
-//					printPacket(recievedPacket, false);
 					if((new String(recievedPacket.getData()).trim().equals("stop"))) {//If the response is not null, ie. a actual response
 						stop=true;	//Break out of loop
 						break;
@@ -148,8 +142,6 @@ public class Elevator implements Runnable{
 
 			}
 			if (currentState == State.STOPPED) {
-				//controller.putElevatorResponses(response);
-				//System.out.println("5. Requests put by Elevator Thread!");
 				currentState = State.DOOROPEN;
 
 				try {
@@ -172,18 +164,18 @@ public class Elevator implements Runnable{
 	 */
 	public static void printPacket(DatagramPacket receivedPacket, boolean sending) {
 		if(!sending) {	//If the packet was received
-		System.out.println("Server: Received the following packet (String): " + new String(receivedPacket.getData())); //Print data as string (Binary values will not appear correctly in the string,
-		System.out.println("Received the following packet (Bytes): ");											//but this is what the assignment said to do)
-		for (int z = 0; z < receivedPacket.getData().length - 1; z++) {					//Prints the byte array one index at a time
+		System.out.println("Server: Received the following packet (String): " + new String(receivedPacket.getData())); //Print data as string (Binary values will not appear correctly in the string, but this is what the assignment said to do)
+		System.out.println("Received the following packet (Bytes): ");
+		for (int z = 0; z < receivedPacket.getData().length - 1; z++) {	//Prints the byte array one index at a time
 			System.out.print(receivedPacket.getData()[z] + ", ");
 		}
 		System.out.println(receivedPacket.getData()[receivedPacket.getData().length - 1]);
-		System.out.println("From:" + receivedPacket.getAddress() + " on port: "+ receivedPacket.getPort()); 	//Prints the address and port the packet was recieved on
+		System.out.println("From:" + receivedPacket.getAddress() + " on port: "+ receivedPacket.getPort()); //Prints the address and port the packet was recieved on
 		System.out.println("");	//Adds a newline between packet sending and receiving
 		}else {			//The packet is being sent
-			System.out.println("Server: Sending the following packet (String): " + new String(receivedPacket.getData()));//Print data as string (Binary values will not appear correctly in the string,
-			System.out.println("Sending the following packet (Bytes): ");										//but this is what the assignment said to do)
-			for (int z = 0; z < receivedPacket.getData().length - 1; z++) {			//Prints the byte array one index at a time
+			System.out.println("Server: Sending the following packet (String): " + new String(receivedPacket.getData()));//Print data as string (Binary values will not appear correctly in the string, but this is what the assignment said to do)
+			System.out.println("Sending the following packet (Bytes): ");
+			for (int z = 0; z < receivedPacket.getData().length - 1; z++) {	//Prints the byte array one index at a time
 				System.out.print(receivedPacket.getData()[z] + ", ");
 			}
 			System.out.println(receivedPacket.getData()[receivedPacket.getData().length - 1]);

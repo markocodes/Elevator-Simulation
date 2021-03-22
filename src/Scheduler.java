@@ -85,11 +85,8 @@ public class Scheduler implements Runnable {
 					// get requests from the floor
 					receivedPacket = new DatagramPacket(new byte[17], 17);
 					receiveSocket.receive(receivedPacket);// Receive a packet
-					// System.out.println(receivedPacket.getData());
 					printPacket(receivedPacket, false);
-					// printPacket(receivedPacket, false);
-					if (new String(receivedPacket.getData()).trim().equals("request")) { // If the receivedPacket
-																							// was a request
+					if (new String(receivedPacket.getData()).trim().equals("request")) { // If the receivedPacket was a request
 						if (queue.isEmpty()) { // If there are no packets to forward
 							ackPacket = new DatagramPacket(negAck, negAck.length, local, receivedPacket.getPort());
 							printPacket(ackPacket, true);
@@ -103,17 +100,10 @@ public class Scheduler implements Runnable {
 						ackPacket = new DatagramPacket(ackData, ackData.length, local, receivedPacket.getPort());
 						printPacket(ackPacket, true);
 						receiveSocket.send(ackPacket);// acknowledge that packet
-
-						// receivedPacket.setPort(22); // Set the packet's port to the client port
-						// queue.add(receivedPacket); // Enqueue the packet
-
-						// extract the floor number that the request is coming from and add it to the
-						// ArrayList floors
+						// extract the floor number that the request is coming from and add it to the ArrayList floors
 						floors.get(currentElevator).add(parseLine((new String(receivedPacket.getData()))).getFloor());
-						// extract the floor number that the request wants to go to and add it to the
-						// ArrayList floors
-						floors.get(currentElevator)
-								.add(parseLine((new String(receivedPacket.getData()))).getCarButton());
+						// extract the floor number that the request wants to go to and add it to the ArrayList floors
+						floors.get(currentElevator).add(parseLine((new String(receivedPacket.getData()))).getCarButton());
 					}
 					if (floors.isEmpty()) {
 						continue;
@@ -219,12 +209,7 @@ public class Scheduler implements Runnable {
 								receivedResponsePacket.getPort());
 						printPacket(ackPacket, true);
 						receiveSocket.send(ackPacket);// acknowledge that packet
-						// receivedResponsePacket.setPort(22); // Set the packet's port to the client
-						// port
 						queue.add(receivedResponsePacket); // Enqueue the packet
-						// queue.add(receivedResponsePacket);
-						// if response is data then the elevator is passing a floor (i.e. arrival sensor
-						// triggered)
 						System.out.println("6. Requests obtained by Scheduler Thread!");
 					}
 					currentState = State.SENDING_REQUEST_TO_FLOOR;
@@ -255,9 +240,7 @@ public class Scheduler implements Runnable {
 	 */
 	public void printPacket(DatagramPacket packet, boolean sending) {
 		if (!sending) { // If the packet was received
-			System.out.println(Thread.currentThread().getName() + ": Received the following packet (String): "
-					+ new String(packet.getData())); // Print data as string (Binary values will not appear
-														// correctly in the string,
+			System.out.println(Thread.currentThread().getName() + ": Received the following packet (String): " + new String(packet.getData())); // Print data as string (Binary values will not appear correctly in the string,
 			System.out.println("Recived the following packet (Bytes): "); // but this is what the assignment said to do)
 			for (int z = 0; z < packet.getData().length - 1; z++) { // Prints the byte array one index at a time
 				System.out.print(packet.getData()[z] + ", ");
@@ -266,9 +249,7 @@ public class Scheduler implements Runnable {
 			System.out.println("From:" + packet.getAddress() + " on port: " + packet.getPort());
 			System.out.println(""); // Adds a newline between packet sending and receiving
 		} else { // The packet is being sent
-			System.out.println(Thread.currentThread().getName() + ": Sending the following packet (String): "
-					+ new String(packet.getData()));// Print data as string (Binary values will not appear
-													// correctly in the string,
+			System.out.println(Thread.currentThread().getName() + ": Sending the following packet (String): " + new String(packet.getData()));// Print data as string (Binary values will not appear correctly in the string,
 			System.out.println("Sending the following packet (Bytes): "); // but this is what the assignment said to do)
 			for (int z = 0; z < packet.getData().length - 1; z++) { // Prints the byte array one index at a time
 				System.out.print(packet.getData()[z] + ", ");
@@ -297,14 +278,10 @@ public class Scheduler implements Runnable {
 	 *         file, representing a single request
 	 */
 	public PersonRequest parseLine(String line) {
-		// System.out.println(line);
-
-		// Split the line into an array of substrings
-		// Each substring is parsed below
+		// Split the line into an array of substring. Each substring is parsed below
 		String[] elements = line.split(" ");
 
-		// Parse the date substring into an array of floats {<hours>, <minutes>,
-		// <seconds>}
+		// Parse the date substring into an array of floats {<hours>, <minutes>, <seconds>}
 		String time_string = elements[0];
 		String[] time_string_array = time_string.split(":");
 		float[] time = new float[3];
@@ -316,8 +293,7 @@ public class Scheduler implements Runnable {
 		String floor_string = elements[1];
 		int floor = Integer.parseInt(floor_string);
 
-		// The third substring is either "Up" or "Down" and corresponds to boolean
-		// values of 1 or 0 respectively
+		// The third substring is either "Up" or "Down" and corresponds to boolean values of 1 or 0 respectively
 		String isUp_string = elements[2];
 		boolean isUp = true;
 		if (isUp_string.equals("Up")) {
@@ -334,11 +310,6 @@ public class Scheduler implements Runnable {
 		int carButton = Integer.parseInt(carButton_string);
 
 		PersonRequest nextLine = new PersonRequest(time, floor, isUp, carButton);
-		// System.out.println(nextLine.getTime()[0] + ":" + nextLine.getTime()[1] + ":"
-		// + nextLine.getTime()[2]);
-		// System.out.println(nextLine.getFloor());
-		// System.out.println(nextLine.isU_d());
-		// System.out.println(nextLine.getCarButton());
 
 		return nextLine;
 	}
