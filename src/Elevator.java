@@ -31,14 +31,16 @@ public class Elevator implements Runnable{
 	private ArrayList<Integer> destination;
 	private int currentFloor;
 	private int port;
+	private int id;
 	
 	/**
 	 * The Floor constructor initializes an instance of Scheduler and assigns the shared Controller instance
 	 */
-	public Elevator(int curFloor,int port) {
+	public Elevator(int curFloor,int port, int id) {
 		this.port = port;
 		this.currentFloor = curFloor;
 		this.up = false;
+		this.id = id;
 	}
 
 	public State getCurrentState() {
@@ -52,6 +54,7 @@ public class Elevator implements Runnable{
 			DatagramSocket socket = new DatagramSocket(port);	//Creates socket bound to each elevators port
 			while(true) {
 			if (currentState == State.DOOROPEN) {
+				System.out.println("Elevator " + this.id + ": Doors are open");
 				byte[] requestByteArray = "request".getBytes();
 				boolean receieved = false; //defines a flag to check for receieving a actual packet vs a nothing to report packet ("null")
 				DatagramPacket recievedPacket = new DatagramPacket(new byte[17], 17);	//Creates a packet to recieve into
@@ -78,7 +81,7 @@ public class Elevator implements Runnable{
 					up = false;
 				}
 				
-				System.out.println("4. Requests obtained by Elevator Thread!");
+				System.out.println("Elevator "+ this.id +": Requests obtained by Elevator");
 				
 					if (response != currentFloor) {
 						destination.add(response);
@@ -86,7 +89,7 @@ public class Elevator implements Runnable{
 				}
 				currentState = State.DOORCLOSED;
 
-				System.out.println("              Doors are closing ");
+				System.out.println("Elevator "+ this.id +": Doors are closing ");
 
 				try {
 					Thread.sleep(3000);
@@ -98,7 +101,7 @@ public class Elevator implements Runnable{
 			if (currentState == State.DOORCLOSED) {
 
 				currentState = State.MOVING;
-				System.out.println("              Elevator is moving");
+				System.out.println("Elevator "+ this.id +": Moving");
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -126,14 +129,16 @@ public class Elevator implements Runnable{
 					Thread.sleep(1000);
 					if (up) {
 						currentFloor++;
+						System.out.println("Elevator "+ this.id +": arriving at floor " + currentFloor);
 					}
 					else if(!up) {
 						currentFloor--;
+						System.out.println("Elevator "+ this.id +": arriving at floor " + currentFloor);
 					}
 				}
 				
 				currentState = State.STOPPED;
-				System.out.println("              Elevator has stopped");
+				System.out.println("Elevator "+ this.id +": Stopped");
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -144,7 +149,7 @@ public class Elevator implements Runnable{
 			}
 			if (currentState == State.STOPPED) {
 				//controller.putElevatorResponses(response);
-				System.out.println("5. Requests put by Elevator Thread!");
+				//System.out.println("5. Requests put by Elevator Thread!");
 				currentState = State.DOOROPEN;
 
 				try {
@@ -192,16 +197,20 @@ public class Elevator implements Runnable{
 	public int getPort() {
 		return port;
 	}
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		
 		Thread  elevator1, elevator2,elevator3,elevator4;
-		elevator1 = new Thread (new Elevator(1,24),"Elevator");
-		elevator2 = new Thread (new Elevator(1,25),"Elevator");
-		elevator3 = new Thread (new Elevator(1,26),"Elevator");
-		elevator4 = new Thread (new Elevator(1,27),"Elevator");
+		elevator1 = new Thread (new Elevator(1,24,1),"Elevator1");
+		elevator2 = new Thread (new Elevator(1,25,2),"Elevator2");
+		elevator3 = new Thread (new Elevator(1,26,3),"Elevator3");
+		elevator4 = new Thread (new Elevator(1,27,4),"Elevator4");
+
 		elevator1.start();
+		Thread.sleep(500);
 		elevator2.start();
+		Thread.sleep(500);
 		elevator3.start();
+		Thread.sleep(500);
 		elevator4.start();
 	}
 	}
