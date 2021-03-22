@@ -284,7 +284,7 @@ public class Scheduler implements Runnable {
 		if (isUp_string.equals("Up")) {
 			isUp = true;
 		} else if (isUp_string.equals("Down")) {
-			isUp = true;
+			isUp = false;
 		} else {
 			System.out.println("ERROR: Failed to parse file!!!");
 		}
