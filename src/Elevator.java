@@ -77,7 +77,7 @@ public class Elevator implements Runnable{
 					up = false;
 				}
 				
-				System.out.println("Elevator "+ this.id +": Requests obtained by Elevator");
+				System.out.println("Elevator "+ this.id +": Requests obtained by Elevator to floor " + dest);
 				
 					if (response != currentFloor) {
 						destination.add(response);

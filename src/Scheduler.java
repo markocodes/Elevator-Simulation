@@ -4,6 +4,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -31,6 +32,10 @@ public class Scheduler implements Runnable {
 	private ArrayList<PersonRequest> requests = null;
 	private static ArrayList<ArrayList<Integer>> floors = new ArrayList<ArrayList<Integer>>();
 	private static ArrayList<ArrayList<Integer>> floorsInProgress = new ArrayList<ArrayList<Integer>>();
+	private static ArrayList<PersonRequest> unscheduledFloors = new ArrayList<PersonRequest>();
+	private static int numElevators;
+	private static int currentFloors[] = { 1, 1, 1, 1 };
+	private static ArrayList<String> elevatorDirection = new ArrayList<String>();
 
 	/**
 	 * The Floor constructor initializes an instance of Scheduler and assigns the
@@ -46,6 +51,11 @@ public class Scheduler implements Runnable {
 		floorsInProgress.add(new ArrayList<Integer>());
 		floorsInProgress.add(new ArrayList<Integer>());
 		floorsInProgress.add(new ArrayList<Integer>());
+		elevatorDirection.add("NA");
+		elevatorDirection.add("NA");
+		elevatorDirection.add("NA");
+		elevatorDirection.add("NA");
+		numElevators = 4;
 		if (portNumber == 23) {
 			currentState = State.WAIT_FOR_FLOOR_REQUEST;
 		} else if (portNumber == 22) {
@@ -86,7 +96,8 @@ public class Scheduler implements Runnable {
 					receivedPacket = new DatagramPacket(new byte[17], 17);
 					receiveSocket.receive(receivedPacket);// Receive a packet
 					printPacket(receivedPacket, false);
-					if (new String(receivedPacket.getData()).trim().equals("request")) { // If the receivedPacket was a request
+					if (new String(receivedPacket.getData()).trim().equals("request")) { // If the receivedPacket was a
+																							// request
 						if (queue.isEmpty()) { // If there are no packets to forward
 							ackPacket = new DatagramPacket(negAck, negAck.length, local, receivedPacket.getPort());
 							printPacket(ackPacket, true);
@@ -100,12 +111,12 @@ public class Scheduler implements Runnable {
 						ackPacket = new DatagramPacket(ackData, ackData.length, local, receivedPacket.getPort());
 						printPacket(ackPacket, true);
 						receiveSocket.send(ackPacket);// acknowledge that packet
-						// extract the floor number that the request is coming from and add it to the ArrayList floors
-						floors.get(currentElevator).add(parseLine((new String(receivedPacket.getData()))).getFloor());
-						// extract the floor number that the request wants to go to and add it to the ArrayList floors
-						floors.get(currentElevator).add(parseLine((new String(receivedPacket.getData()))).getCarButton());
+
+						// Add another request to the list of floor that need to be assigned to
+						// elevators
+						unscheduledFloors.add(parseLine((new String(receivedPacket.getData()))));
 					}
-					if (floors.isEmpty()) {
+					if (unscheduledFloors.isEmpty()) {
 						continue;
 					}
 //					System.out.println("2. Request obtained by Scheduler Thread!");
@@ -113,10 +124,69 @@ public class Scheduler implements Runnable {
 					currentState = State.SCHEDULING;
 				} else if (currentState == State.SCHEDULING) {
 					// Determine the optimal sequence of floors to visit
+					System.out.println("unscheduledFloors " + unscheduledFloors);
+					String direction = "NA";
+					int currentFloor, destinationFloor;
+					// Find an elevator that is available to handle the new request (and all other
+					// unscheduled requests)
+					System.out.println("Right here beforeeeee");
+					ArrayList<PersonRequest> scheduledElements = new ArrayList<PersonRequest>();
+					for (PersonRequest request : unscheduledFloors) {
+						System.out.println(request.toString());
+						currentFloor = request.getFloor();
+						destinationFloor = request.getCarButton();
+						if (request.isU_d()) {
+							direction = "Up";
+						} else {
+							direction = "Down";
+						}
+						System.out.println("Right here;");
+						for (int i = 0; i < numElevators; i++) {
+							System.out.println("here");
+							if (elevatorDirection.get(i).equals("NA")) {
+								System.out.println("NAAA ");
+								// add the request to this elevator
+								floors.get(i).add(currentFloor);
+								floors.get(i).add(destinationFloor);
+								System.out.println(floors);
+								elevatorDirection.set(i, direction);
+								scheduledElements.add(request);
+								break;
+							} else if (direction.equals(elevatorDirection.get(i))) {
+								// Check if the elevator is going in
+								if (elevatorDirection.get(i).equals("Up")) {
+									// Now check if the elevator has already passed the currentFloor
+									if (currentFloor > currentFloors[i]) {
+										System.out.println("N 2 ");
+										floors.get(i).add(currentFloor);
+										floors.get(i).add(destinationFloor);
+										elevatorDirection.set(i, direction);
+										Collections.sort(floors.get(i));
+										scheduledElements.add(request);
+										break;
+									}
+								} else if (elevatorDirection.get(i).equals("Down")) {
+									// Now check if the elevator has already passed the currentFloor
+									System.out.println("N 3 ");
+									if (currentFloor < currentFloors[i]) {
+										floors.get(i).add(currentFloor);
+										floors.get(i).add(destinationFloor);
+										elevatorDirection.set(i, direction);
+										Collections.reverse(floors.get(i));
+										scheduledElements.add(request);
+										break;
+									}
+								}
+							}
+						}
+						// no elevator is available to handle the request
+
+					}
+					for (PersonRequest request : scheduledElements) {
+						unscheduledFloors.remove(request);
+					}
 					System.out.println("Floors To visit: " + floors);
-					System.out.println("Signaling Elevator to service floor " + floors.get(currentElevator).get(0));
-					// int instructions = floors.remove(0);
-					currentElevator = (currentElevator + 1) % 4;
+
 					currentState = State.WAIT_FOR_FLOOR_REQUEST;
 				}
 				try {
@@ -157,26 +227,28 @@ public class Scheduler implements Runnable {
 					if (new String(receivedResponsePacket.getData()).trim().equals("request")) { // TODO: check for an
 																									// integer rather
 																									// than "request"
-						if(receivedResponsePacket.getPort() == 24) {
+						if (receivedResponsePacket.getPort() == 24) {
 							whichQueue = 0;
-						}
-						else if(receivedResponsePacket.getPort() == 25) {
+						} else if (receivedResponsePacket.getPort() == 25) {
 							whichQueue = 1;
-						}
-						else if(receivedResponsePacket.getPort() == 26) {
+						} else if (receivedResponsePacket.getPort() == 26) {
 							whichQueue = 2;
-						}
-						else if(receivedResponsePacket.getPort() == 27) {
+						} else if (receivedResponsePacket.getPort() == 27) {
 							whichQueue = 3;
 						}
 						if (floors.get(whichQueue).isEmpty()) { // If there are no packets to forward
-							ackPacket = new DatagramPacket(negAck, negAck.length, local, receivedResponsePacket.getPort());
+							elevatorDirection.set(whichQueue, "NA");
+							ackPacket = new DatagramPacket(negAck, negAck.length, local,
+									receivedResponsePacket.getPort());
 							printPacket(ackPacket, true);
 							receiveSocket.send(ackPacket);// acknowledge that packet
 						} else {
 							System.out.println(Thread.currentThread().getName() + ": Request Receieved");
 							floorsInProgress.get(whichQueue).add(floors.get(whichQueue).get(0));
-							responsePacket = new DatagramPacket(String.valueOf(floors.get(whichQueue).get(0)).getBytes(), String.valueOf(floors.get(whichQueue).remove(0)).getBytes().length, local, receivedResponsePacket.getPort());
+							responsePacket = new DatagramPacket(
+									String.valueOf(floors.get(whichQueue).get(0)).getBytes(),
+									String.valueOf(floors.get(whichQueue).remove(0)).getBytes().length, local,
+									receivedResponsePacket.getPort());
 							System.out.println("Sending response to elevator");
 							printPacket(responsePacket, true);
 							receiveSocket.send(responsePacket); // Send the first packet waiting
@@ -210,6 +282,7 @@ public class Scheduler implements Runnable {
 						printPacket(ackPacket, true);
 						receiveSocket.send(ackPacket);// acknowledge that packet
 						queue.add(receivedResponsePacket); // Enqueue the packet
+						currentFloors[whichQueue] = floorSensor;
 						System.out.println("6. Requests obtained by Scheduler Thread!");
 					}
 					currentState = State.SENDING_REQUEST_TO_FLOOR;
@@ -240,7 +313,9 @@ public class Scheduler implements Runnable {
 	 */
 	public void printPacket(DatagramPacket packet, boolean sending) {
 		if (!sending) { // If the packet was received
-			System.out.println(Thread.currentThread().getName() + ": Received the following packet (String): " + new String(packet.getData())); // Print data as string (Binary values will not appear correctly in the string,
+			System.out.println(Thread.currentThread().getName() + ": Received the following packet (String): "
+					+ new String(packet.getData())); // Print data as string (Binary values will not appear correctly in
+														// the string,
 			System.out.println("Recived the following packet (Bytes): "); // but this is what the assignment said to do)
 			for (int z = 0; z < packet.getData().length - 1; z++) { // Prints the byte array one index at a time
 				System.out.print(packet.getData()[z] + ", ");
@@ -249,7 +324,9 @@ public class Scheduler implements Runnable {
 			System.out.println("From:" + packet.getAddress() + " on port: " + packet.getPort());
 			System.out.println(""); // Adds a newline between packet sending and receiving
 		} else { // The packet is being sent
-			System.out.println(Thread.currentThread().getName() + ": Sending the following packet (String): " + new String(packet.getData()));// Print data as string (Binary values will not appear correctly in the string,
+			System.out.println(Thread.currentThread().getName() + ": Sending the following packet (String): "
+					+ new String(packet.getData()));// Print data as string (Binary values will not appear correctly in
+													// the string,
 			System.out.println("Sending the following packet (Bytes): "); // but this is what the assignment said to do)
 			for (int z = 0; z < packet.getData().length - 1; z++) { // Prints the byte array one index at a time
 				System.out.print(packet.getData()[z] + ", ");
@@ -281,7 +358,8 @@ public class Scheduler implements Runnable {
 		// Split the line into an array of substring. Each substring is parsed below
 		String[] elements = line.split(" ");
 
-		// Parse the date substring into an array of floats {<hours>, <minutes>, <seconds>}
+		// Parse the date substring into an array of floats {<hours>, <minutes>,
+		// <seconds>}
 		String time_string = elements[0];
 		String[] time_string_array = time_string.split(":");
 		float[] time = new float[3];
@@ -293,7 +371,8 @@ public class Scheduler implements Runnable {
 		String floor_string = elements[1];
 		int floor = Integer.parseInt(floor_string);
 
-		// The third substring is either "Up" or "Down" and corresponds to boolean values of 1 or 0 respectively
+		// The third substring is either "Up" or "Down" and corresponds to boolean
+		// values of 1 or 0 respectively
 		String isUp_string = elements[2];
 		boolean isUp = true;
 		if (isUp_string.equals("Up")) {
