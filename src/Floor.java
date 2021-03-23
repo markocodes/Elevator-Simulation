@@ -205,16 +205,28 @@ public class Floor implements Runnable {
 		return arr;
 	}
 
+	/**
+	 * Parse config file to determine amount of floors to create
+	 * @return Number of floors needed
+	 * @throws FileNotFoundException
+	 */
+	public static int parseConfig() throws FileNotFoundException {
+		ArrayList<String> configLines = new ArrayList<>();
 
-	public static void main(String[] args) {
-		
+		File file = new File("building.config.txt");
+		Scanner scanner = new Scanner(file);
+		while (scanner.hasNextLine()) {
+			String line = scanner.nextLine();
+			configLines.add(line);
+		}
+		scanner.close();
+		String[] splitLine = configLines.get(4).split(" ");
+		return Integer.parseInt(splitLine[1]);
+	}
 
-		Scanner reader = new Scanner(System.in);  // Reading from System.in
-		System.out.println("Enter amount of floors: ");
-		int floorCount = reader.nextInt(); // Scans the next token of the input as an int.
-		//once finished
-		reader.close();
 
+	public static void main(String[] args) throws FileNotFoundException {
+		int floorCount = parseConfig();
 
 		for(int i = 1; i <= floorCount; i++){
 			(new Thread(new Floor(i, 4999+i), "Floor " + i)).start();
