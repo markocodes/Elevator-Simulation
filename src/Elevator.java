@@ -198,7 +198,7 @@ public class Elevator implements Runnable{
 		reader.close();
 
 		for(int i = 1; i <= elevatorCount; i++){
-			(new Thread(new Floor(i, 23+i), "Floor " + i)).start();
+			(new Thread(new Elevator(1, 23+i, i), "Elevator " + i)).start();
 		}
 
 	}
