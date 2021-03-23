@@ -1,3 +1,5 @@
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -184,18 +186,34 @@ public class Elevator implements Runnable{
 
 		}
 	}
+
+	/**
+	 * Parse config file to determine amount of elevators to create
+	 * @return Number of elevators needed
+	 * @throws FileNotFoundException
+	 */
+	public static int parseConfig() throws FileNotFoundException {
+		ArrayList<String> configLines = new ArrayList<>();
+
+		File file = new File("building.config.txt");
+		Scanner scanner = new Scanner(file);
+		while (scanner.hasNextLine()) {
+			String line = scanner.nextLine();
+
+			configLines.add(line);
+
+		}
+		scanner.close();
+		String[] splitLine = configLines.get(5).split(" ");
+		return Integer.parseInt(splitLine[1]);
+	}
 	
 
 	public int getPort() {
 		return port;
 	}
-	public static void main(String[] args) throws InterruptedException {
-		
-		Scanner reader = new Scanner(System.in);  // Reading from System.in
-		System.out.println("Enter amount of elevators: ");
-		int elevatorCount = reader.nextInt(); // Scans the next token of the input as an int.
-		//once finished
-		reader.close();
+	public static void main(String[] args) throws FileNotFoundException {
+		int elevatorCount = parseConfig();
 
 		for(int i = 1; i <= elevatorCount; i++){
 			(new Thread(new Elevator(1, 23+i, i), "Elevator " + i)).start();
