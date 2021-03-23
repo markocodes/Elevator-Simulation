@@ -17,11 +17,16 @@ public class Floor implements Runnable {
 	private DatagramPacket receivedPacket;
 	private DatagramPacket ackPacket;
 	private ArrayList<DatagramPacket> responses;
+	private int floor;
+	private int port;
+
 
 	/**
 	 * The Floor constructor initializes an instance of Floor
 	 */
-	public Floor() {
+	public Floor(int floor,int port) {	
+		this.floor=floor;
+		this.port=port;
 	}
 
 	/**
@@ -30,11 +35,15 @@ public class Floor implements Runnable {
 	 * accessed by the Scheduler thread.
 	 */
 	public void run() {
-		ArrayList<PersonRequest> dataLines = readFile();
-
+		
+		
+		 ArrayList<PersonRequest> dataLines = readFile();
+			
+		
+		
 		try {
 			int numberOfSuccessfulPackets = 0;
-			DatagramSocket socket = new DatagramSocket(5000); // Creates a new socket. This will be used for sending and recieving packets
+			DatagramSocket socket = new DatagramSocket(port); // Creates a new socket. This will be used for sending and recieving packets
 			InetAddress local = InetAddress.getLocalHost(); // Gets the local address of the computer
 
 			for (PersonRequest request : dataLines) {
@@ -59,7 +68,6 @@ public class Floor implements Runnable {
 			
 			byte[] ackData = "ack".getBytes();
 			ackPacket = new DatagramPacket(ackData, ackData.length, local, receivedPacket.getPort());
-			printPacket(ackPacket, true);
 			socket.send(ackPacket);// acknowledge that packet
 			
 			socket.close(); // Close the socket
@@ -68,7 +76,14 @@ public class Floor implements Runnable {
 		IOException e) {
 			e.printStackTrace();
 		}
-	}
+		
+		
+		}
+
+		
+		
+		
+	
 
 	/**
 	 * Parses a text file and creates an ArrayList of PersonRequest objects
@@ -82,7 +97,14 @@ public class Floor implements Runnable {
 			Scanner scanner = new Scanner(file);
 			while (scanner.hasNextLine()) {
 				String line = scanner.nextLine();
-				dataLines.add(parseLine(line));
+				
+				PersonRequest ah = 	parseLine(line);
+				if(ah.getFloor()==floor) {
+					dataLines.add(ah);
+					
+			
+				}
+				
 			}
 			scanner.close();
 		} catch (FileNotFoundException e) {
@@ -90,6 +112,7 @@ public class Floor implements Runnable {
 			e.printStackTrace();
 		}
 		return dataLines;
+		
 	}
 
 	/**
@@ -125,7 +148,7 @@ public class Floor implements Runnable {
 		if (isUp_string.equals("Up")) {
 			isUp = true;
 		} else if (isUp_string.equals("Down")) {
-			isUp = true;
+			isUp = false;
 		} else {
 			System.out.println("ERROR: Failed to parse file!!!");
 		}
@@ -149,10 +172,10 @@ public class Floor implements Runnable {
 	 *                       sent, or was recieved
 	 */
 
-	public static void printPacket(DatagramPacket receivedPacket, boolean sending) {
+	public void printPacket(DatagramPacket receivedPacket, boolean sending) {
 		if (!sending) { // If the packet was recieved
-			System.out.println("Floor: Received the following packet (String): " + new String(receivedPacket.getData()));
-			System.out.println("Recived the following packet (Bytes): "); // but this is what the assignment said to do)
+			System.out.println("Floor" + floor +":"+ "Received the following packet (String): " + new String(receivedPacket.getData()));
+			//System.out.println("Recived the following packet (Bytes): "); // but this is what the assignment said to do)
 			for (int z = 0; z < receivedPacket.getData().length - 1; z++) { // Prints the byte array one index at a time
 				System.out.print(receivedPacket.getData()[z] + ", ");
 			}
@@ -160,8 +183,8 @@ public class Floor implements Runnable {
 			System.out.println("From:" + receivedPacket.getAddress() + " on port: " + receivedPacket.getPort());
 			System.out.println(""); // Adds a newline between packet sending and receiving
 		} else { // The packet is being sent
-			System.out.println("Floor: Sending the following packet (String): " + new String(receivedPacket.getData()));
-			System.out.println("Sending the following packet (Bytes): "); // but this is what the assignment said to do)
+			System.out.println("Floor" + floor + ": Sending the following packet (String): " + new String(receivedPacket.getData()));
+			//System.out.println("Sending the following packet (Bytes): "); // but this is what the assignment said to do)
 			for (int z = 0; z < receivedPacket.getData().length - 1; z++) { // Prints the byte array one index at a time
 				System.out.print(receivedPacket.getData()[z] + ", ");
 			}
@@ -183,9 +206,48 @@ public class Floor implements Runnable {
 	}
 
 	public static void main(String[] args) {
-		Thread floor;
-		floor = new Thread(new Floor(), "Floor");
-		floor.start();
+		
 
+		Scanner reader = new Scanner(System.in);  // Reading from System.in
+		System.out.println("Enter how many floors your want ");
+		int floorCount = reader.nextInt(); // Scans the next token of the input as an int.
+		//once finished
+		reader.close();
+		
+		
+		Thread floor1,floor2,floor3,floor4,floor5,floor6,floor7;
+		floor1 = new Thread(new Floor(1,5000), "Floor1");
+		floor2 = new Thread(new Floor(2,5001), "Floor2");
+		floor3 = new Thread(new Floor(3,5002), "Floor3");
+		floor4 = new Thread(new Floor(4,5003), "Floor4");
+		floor5 = new Thread(new Floor(5,5004), "Floor5");
+		floor6 = new Thread(new Floor(6,5005), "Floor6");
+		floor7 = new Thread(new Floor(7,5006), "Floor7");
+		
+		for(int i = 0;i<floorCount;i++) {
+			if(i==0) {
+				floor1.start();
+			}
+			else if(i==1) {
+				floor2.start();
+			}
+			else if(i==2) {
+				floor3.start();
+			}
+			else if(i==3) {
+				floor4.start();
+			}
+			else if(i==4) {
+				floor5.start();
+			}
+			else if(i==5) {
+				floor6.start();
+			}
+			else if(i==6) {
+				floor7.start();
+			}
+			
+		}
+		
 	}
 }
