@@ -192,40 +192,17 @@ public class Elevator implements Runnable{
 	public static void main(String[] args) throws InterruptedException {
 		
 		Scanner reader = new Scanner(System.in);  // Reading from System.in
-		System.out.println("Enter how many elevators your want ");
+		System.out.println("Enter amount of elevators: ");
 		int elevatorCount = reader.nextInt(); // Scans the next token of the input as an int.
 		//once finished
 		reader.close();
-		
-		
-		Thread  elevator1, elevator2,elevator3,elevator4;
-		elevator1 = new Thread (new Elevator(1,24,1),"Elevator1");
-		elevator2 = new Thread (new Elevator(1,25,2),"Elevator2");
-		elevator3 = new Thread (new Elevator(1,26,3),"Elevator3");
-		elevator4 = new Thread (new Elevator(1,27,4),"Elevator4");
-		
-		for(int i = 0;i<elevatorCount;i++) {
-			if(i==0) {
-				elevator1.start();
-				Thread.sleep(500);
-			}
-			else if(i==1) {
-				elevator2.start();
-				Thread.sleep(500);
-			}
-			else if(i==2) {
-				elevator3.start();
-				Thread.sleep(500);
-			}
-			else if(i==3) {
-				elevator4.start();
-				Thread.sleep(500);
-			}
 
-	
+		for(int i = 1; i <= elevatorCount; i++){
+			(new Thread(new Floor(i, 23+i), "Floor " + i)).start();
 		}
+
 	}
-	}
+}
 
 
 		

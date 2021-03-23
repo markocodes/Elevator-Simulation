@@ -93,7 +93,7 @@ public class Floor implements Runnable {
 	public ArrayList<PersonRequest> readFile() {
 		ArrayList<PersonRequest> dataLines = new ArrayList<>();
 		try {
-			File file = new File("input.txt");
+			File file = new File("src/input.txt");
 			Scanner scanner = new Scanner(file);
 			while (scanner.hasNextLine()) {
 				String line = scanner.nextLine();
@@ -205,49 +205,19 @@ public class Floor implements Runnable {
 		return arr;
 	}
 
+
 	public static void main(String[] args) {
 		
 
 		Scanner reader = new Scanner(System.in);  // Reading from System.in
-		System.out.println("Enter how many floors your want ");
+		System.out.println("Enter amount of floors: ");
 		int floorCount = reader.nextInt(); // Scans the next token of the input as an int.
 		//once finished
 		reader.close();
-		
-		
-		Thread floor1,floor2,floor3,floor4,floor5,floor6,floor7;
-		floor1 = new Thread(new Floor(1,5000), "Floor1");
-		floor2 = new Thread(new Floor(2,5001), "Floor2");
-		floor3 = new Thread(new Floor(3,5002), "Floor3");
-		floor4 = new Thread(new Floor(4,5003), "Floor4");
-		floor5 = new Thread(new Floor(5,5004), "Floor5");
-		floor6 = new Thread(new Floor(6,5005), "Floor6");
-		floor7 = new Thread(new Floor(7,5006), "Floor7");
-		
-		for(int i = 0;i<floorCount;i++) {
-			if(i==0) {
-				floor1.start();
-			}
-			else if(i==1) {
-				floor2.start();
-			}
-			else if(i==2) {
-				floor3.start();
-			}
-			else if(i==3) {
-				floor4.start();
-			}
-			else if(i==4) {
-				floor5.start();
-			}
-			else if(i==5) {
-				floor6.start();
-			}
-			else if(i==6) {
-				floor7.start();
-			}
-			
+
+
+		for(int i = 1; i <= floorCount; i++){
+			(new Thread(new Floor(i, 4999+i), "Floor " + i)).start();
 		}
-		
 	}
 }
