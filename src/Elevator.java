@@ -34,6 +34,7 @@ public class Elevator implements Runnable{
 	private int currentFloor;
 	private int port;
 	private int id;
+	private int currentVelocity;
 	
 	/**
 	 * The Floor constructor initializes an instance of Scheduler and assigns the shared Controller instance
@@ -43,6 +44,7 @@ public class Elevator implements Runnable{
 		this.currentFloor = curFloor;
 		this.up = false;
 		this.id = id;
+		this.currentVelocity = 0;
 	}
 
 	public State getCurrentState() {
@@ -119,10 +121,29 @@ public class Elevator implements Runnable{
 					socket.send(requestPacket);	//Send a request to the intermediate server
 					socket.receive(recievedPacket);	//Receive the response
 					if((new String(recievedPacket.getData()).trim().equals("stop"))) {//If the response is not null, ie. a actual response
+						//Begin Decelerating
+						a = -0.3;
+						t = currentVelocity * / a
+						sleep(t)
 						stop=true;	//Break out of loop
 						break;
 					}
-					Thread.sleep(1000);
+					//Otherwise continue accelerating at 0.3 m/s^2 or if at top speed continue at top speed
+					if (currentVelocity >= 1.9) {
+						a = 0;
+					} else {
+						a = 0.3;
+					}
+					t = //some calculation
+					
+					//determine start time
+					Thread.sleep(t);
+					if (errorFlag == 1) {
+						
+					} else if (errorFlag == 2) {
+						
+					}
+					//determine stop time
 					if (up) {
 						currentFloor++;
 						System.out.println("Elevator "+ this.id +": arriving at floor " + currentFloor);
