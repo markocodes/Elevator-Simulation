@@ -122,19 +122,25 @@ public class Elevator implements Runnable{
 					socket.receive(recievedPacket);	//Receive the response
 					if((new String(recievedPacket.getData()).trim().equals("stop"))) {//If the response is not null, ie. a actual response
 						//Begin Decelerating
-						a = -0.3;
-						t = currentVelocity * / a
-						sleep(t)
+						double a = -0.3;
+						double t = quadratic(a,currentVelocity,4.0);
+						int time = (int)t;
+						Thread.sleep(time);
 						stop=true;	//Break out of loop
 						break;
 					}
 					//Otherwise continue accelerating at 0.3 m/s^2 or if at top speed continue at top speed
 					if (currentVelocity >= 1.9) {
-						a = 0;
+						double a = 0;
+						double t = quadratic(a,currentVelocity,4.0);
+						int time = (int)t;
+						Thread.sleep(time);
 					} else {
-						a = 0.3;
+						double a = 0.3;
+						double t = quadratic(a,currentVelocity,4.0);
+						int time = (int)t;
+						Thread.sleep(time);
 					}
-					t = //some calculation
 					
 					//determine start time
 					Thread.sleep(t);
@@ -241,6 +247,42 @@ public class Elevator implements Runnable{
 		}
 
 	}
+	
+	public double quadratic(double a,double b,double c) {
+
+	    // value a, b, and c
+	    double root1 = 0, root2 = 0;
+
+	    // calculate the determinant (b2 - 4ac)
+	    double determinant = b * b - 4 * a * c;
+
+	    // check if determinant is greater than 0
+	    if (determinant > 0) {
+
+	      // two real and distinct roots
+	      root1 = (-b + Math.sqrt(determinant)) / (2 * a);
+	      root2 = (-b - Math.sqrt(determinant)) / (2 * a);
+	    }
+
+	    // check if determinant is equal to 0
+	    else if (determinant == 0) {
+
+	      // two real and equal roots
+	      // determinant is equal to 0
+	      // so -b + 0 == -b
+	      root1 = root2 = -b / (2 * a);
+	    }
+
+	    // if determinant is less than zero
+	    else {
+
+	      // roots are complex number and distinct
+	      double real = -b / (2 * a);
+	      double imaginary = Math.sqrt(-determinant) / (2 * a);
+
+	    }
+	    return root1;
+	  }
 }
 
 
