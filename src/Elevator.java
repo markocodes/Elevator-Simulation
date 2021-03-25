@@ -35,6 +35,8 @@ public class Elevator implements Runnable{
 	private int currentFloor;
 	private int port;
 	private int id;
+	private float currentVelocity = 0;
+	private int error = 0;
 	
 	/**
 	 * The Floor constructor initializes an instance of Scheduler and assigns the shared Controller instance
@@ -55,7 +57,7 @@ public class Elevator implements Runnable{
 		destination = new ArrayList<Integer>();
 		try {
 			DatagramSocket socket = new DatagramSocket(port);	//Creates socket bound to each elevators port
-			int error = 0;
+			
 			while(true) {
 			if (currentState == State.DOOROPEN) {
 				System.out.println("Elevator " + this.id + ": Doors are open");
@@ -136,8 +138,33 @@ public class Elevator implements Runnable{
 					socket.send(requestPacket);	//Send a request to the intermediate server
 					socket.receive(recievedPacket);	//Receive the response
 					if((new String(recievedPacket.getData()).trim().equals("stop"))) {//If the response is not null, ie. a actual response
+						//Begin Decelerating
+						double a = -0.3;
+						double t = quadratic(a,currentVelocity,4.0);
+						int time = (int)t;
+						Thread.sleep(time);
 						stop=true;	//Break out of loop
 						break;
+					}
+					//Otherwise continue accelerating at 0.3 m/s^2 or if at top speed continue at top speed
+					if (currentVelocity >= 1.9) {
+						double a = 0;
+						double t = quadratic(a,currentVelocity,4.0);
+						int time = (int)t;
+						Thread.sleep(time);
+					} else {
+						double a = 0.3;
+						double t = quadratic(a,currentVelocity,4.0);
+						int time = (int)t;
+						Thread.sleep(time);
+					}
+					
+					//determine start time
+					Thread.sleep(t);
+					if (errorFlag == 1) {
+						
+					} else if (errorFlag == 2) {
+						
 					}
 					Thread.sleep(1000);
 					if (up) {
@@ -229,6 +256,41 @@ public class Elevator implements Runnable{
 	public int getPort() {
 		return port;
 	}
+	public double quadratic(double a,double b,double c) {
+
+	    // value a, b, and c
+	    double root1 = 0, root2 = 0;
+
+	    // calculate the determinant (b2 - 4ac)
+	    double determinant = b * b - 4 * a * c;
+
+	    // check if determinant is greater than 0
+	    if (determinant > 0) {
+
+	      // two real and distinct roots
+	      root1 = (-b + Math.sqrt(determinant)) / (2 * a);
+	      root2 = (-b - Math.sqrt(determinant)) / (2 * a);
+	    }
+
+	    // check if determinant is equal to 0
+	    else if (determinant == 0) {
+
+	      // two real and equal roots
+	      // determinant is equal to 0
+	      // so -b + 0 == -b
+	      root1 = root2 = -b / (2 * a);
+	    }
+
+	    // if determinant is less than zero
+	    else {
+
+	      // roots are complex number and distinct
+	      double real = -b / (2 * a);
+	      double imaginary = Math.sqrt(-determinant) / (2 * a);
+
+	    }
+	    return root1;
+	  }
 	public static void main(String[] args) throws FileNotFoundException {
 		int elevatorCount = parseConfig();
 
