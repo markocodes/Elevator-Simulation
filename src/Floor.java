@@ -51,7 +51,7 @@ public class Floor implements Runnable {
 				byte[] dataArray = generateByteArray(request);
 
 				DatagramPacket packetToSend = new DatagramPacket(dataArray, dataArray.length, local, 23); // Creates a packet from the dataArray, to be sent to the intermediate host.
-				DatagramPacket replyPacket = new DatagramPacket(new byte[20], 20); // Creates a packet to recieve the acknowledgement in.
+				DatagramPacket replyPacket = new DatagramPacket(new byte[21], 21); // Creates a packet to recieve the acknowledgement in.
 				printPacket(packetToSend, true); // Prints the contents of the packet to be sent
 				socket.send(packetToSend); // Sends the packetToSend
 				socket.receive(replyPacket); // Receive the ack from the intermediate host
@@ -156,8 +156,11 @@ public class Floor implements Runnable {
 		// The fourth substring represents the car button pressed i.e. the floor that the passenger wants to go to
 		String carButton_string = elements[3];
 		int carButton = Integer.parseInt(carButton_string);
+		
+		String error_String = elements[4];
+		int error = Integer.parseInt(error_String);
 
-		PersonRequest nextLine = new PersonRequest(time, floor, isUp, carButton);
+		PersonRequest nextLine = new PersonRequest(time, floor, isUp, carButton, error);
 
 		return nextLine;
 	}

@@ -6,6 +6,7 @@ public class PersonRequest {
     private final int floor;
     private final boolean u_d;
     private final int carButton;
+    private final int error;
 
 
     /**
@@ -15,11 +16,12 @@ public class PersonRequest {
      * @param u_d whether the request is to go up or down
      * @param carButton floor button within the elevator which is providing service to the passenger
      */
-    public PersonRequest(float[] time, int floor, boolean u_d, int carButton) {
+    public PersonRequest(float[] time, int floor, boolean u_d, int carButton, int error) {
         this.time = time;
         this.floor = floor;
         this.u_d = u_d;
         this.carButton = carButton;
+        this.error = error;
     }
 
     // Getters
@@ -38,6 +40,9 @@ public class PersonRequest {
 
     public int getCarButton() {
         return carButton;
+    }
+    public int getError() {
+        return error;
     }
     
     public String toString() {
@@ -61,6 +66,9 @@ public class PersonRequest {
     	
     	//Print the elevator 
     	printObject.append(" ").append(getCarButton());
+    	
+    	//Print the error
+    	printObject.append(" ").append(getError());
     	
     	return printObject.toString();
     }
