@@ -36,6 +36,7 @@ public class Scheduler implements Runnable {
 	private static int numElevators;
 	private static int currentFloors[] = { 1, 1, 1, 1 };
 	private static ArrayList<String> elevatorDirection = new ArrayList<String>();
+	private static int elevatorError[] = {0, 0, 0, 0};
 
 	/**
 	 * The Floor constructor initializes an instance of Scheduler and assigns the
@@ -93,7 +94,7 @@ public class Scheduler implements Runnable {
 			while (true) {
 				if (currentState == State.WAIT_FOR_FLOOR_REQUEST) {
 					// get requests from the floor
-					receivedPacket = new DatagramPacket(new byte[17], 17);
+					receivedPacket = new DatagramPacket(new byte[18], 18);
 					receiveSocket.receive(receivedPacket);// Receive a packet
 					printPacket(receivedPacket, false);
 					if (new String(receivedPacket.getData()).trim().equals("request")) { // If the receivedPacket was a
@@ -126,7 +127,7 @@ public class Scheduler implements Runnable {
 					// Determine the optimal sequence of floors to visit
 					System.out.println("unscheduledFloors " + unscheduledFloors);
 					String direction = "NA";
-					int currentFloor, destinationFloor;
+					int currentFloor, destinationFloor, elevError;
 					// Find an elevator that is available to handle the new request (and all other
 					// unscheduled requests)
 					System.out.println("Right here beforeeeee");
@@ -135,6 +136,7 @@ public class Scheduler implements Runnable {
 						System.out.println(request.toString());
 						currentFloor = request.getFloor();
 						destinationFloor = request.getCarButton();
+						elevError = request.getError();
 						if (request.isU_d()) {
 							direction = "Up";
 						} else {
@@ -148,6 +150,7 @@ public class Scheduler implements Runnable {
 								// add the request to this elevator
 								floors.get(i).add(currentFloor);
 								floors.get(i).add(destinationFloor);
+								elevatorError[i] = elevError;
 								System.out.println(floors);
 								elevatorDirection.set(i, direction);
 								scheduledElements.add(request);
@@ -160,6 +163,7 @@ public class Scheduler implements Runnable {
 										System.out.println("N 2 ");
 										floors.get(i).add(currentFloor);
 										floors.get(i).add(destinationFloor);
+										elevatorError[i] = elevError;
 										elevatorDirection.set(i, direction);
 										Collections.sort(floors.get(i));
 										scheduledElements.add(request);
@@ -171,6 +175,7 @@ public class Scheduler implements Runnable {
 									if (currentFloor < currentFloors[i]) {
 										floors.get(i).add(currentFloor);
 										floors.get(i).add(destinationFloor);
+										elevatorError[i] = elevError;
 										elevatorDirection.set(i, direction);
 										Collections.reverse(floors.get(i));
 										scheduledElements.add(request);
@@ -243,12 +248,17 @@ public class Scheduler implements Runnable {
 							printPacket(ackPacket, true);
 							receiveSocket.send(ackPacket);// acknowledge that packet
 						} else {
+							StringBuilder stringReq = new StringBuilder();
 							System.out.println(Thread.currentThread().getName() + ": Request Receieved");
 							floorsInProgress.get(whichQueue).add(floors.get(whichQueue).get(0));
+							stringReq.append(String.valueOf(floors.get(whichQueue).get(0)));
+							stringReq.append(" ").append(elevatorError[whichQueue]);
 							responsePacket = new DatagramPacket(
-									String.valueOf(floors.get(whichQueue).get(0)).getBytes(),
-									String.valueOf(floors.get(whichQueue).remove(0)).getBytes().length, local,
+									stringReq.toString().getBytes(),
+									stringReq.toString().getBytes().length, local,
 									receivedResponsePacket.getPort());
+							elevatorError[whichQueue] = 0;
+							floors.get(whichQueue).remove(0);
 							System.out.println("Sending response to elevator");
 							printPacket(responsePacket, true);
 							receiveSocket.send(responsePacket); // Send the first packet waiting
@@ -357,7 +367,6 @@ public class Scheduler implements Runnable {
 	public PersonRequest parseLine(String line) {
 		// Split the line into an array of substring. Each substring is parsed below
 		String[] elements = line.split(" ");
-
 		// Parse the date substring into an array of floats {<hours>, <minutes>,
 		// <seconds>}
 		String time_string = elements[0];
@@ -385,10 +394,13 @@ public class Scheduler implements Runnable {
 
 		// The fourth substring represents the car button pressed
 		// i.e. the floor that the passenger wants to go to
-		String carButton_string = elements[3].replaceAll("[^\\d.]", "");
+		String carButton_string = elements[3];
 		int carButton = Integer.parseInt(carButton_string);
 
-		PersonRequest nextLine = new PersonRequest(time, floor, isUp, carButton);
+		String error_String = elements[4].replaceAll("[^\\d.]", "");
+		int error = Integer.parseInt(error_String);
+
+		PersonRequest nextLine = new PersonRequest(time, floor, isUp, carButton, error);
 
 		return nextLine;
 	}

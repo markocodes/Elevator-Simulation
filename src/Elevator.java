@@ -5,6 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -54,12 +55,13 @@ public class Elevator implements Runnable{
 		destination = new ArrayList<Integer>();
 		try {
 			DatagramSocket socket = new DatagramSocket(port);	//Creates socket bound to each elevators port
+			int error = 0;
 			while(true) {
 			if (currentState == State.DOOROPEN) {
 				System.out.println("Elevator " + this.id + ": Doors are open");
 				byte[] requestByteArray = "request".getBytes();
 				boolean receieved = false; //defines a flag to check for receieving a actual packet vs a nothing to report packet ("null")
-				DatagramPacket recievedPacket = new DatagramPacket(new byte[17], 17);	//Creates a packet to recieve into
+				DatagramPacket recievedPacket = new DatagramPacket(new byte[18], 18);	//Creates a packet to recieve into
 				DatagramPacket requestPacket = new DatagramPacket(requestByteArray, requestByteArray.length, InetAddress.getLocalHost(), 22);
 
 				while(!receieved) {	//Loop until a non null packet is recieved
@@ -71,7 +73,10 @@ public class Elevator implements Runnable{
 					Thread.sleep(1000);
 				}
 				byte[] temp = recievedPacket.getData();
-				int dest = Integer.parseInt((new String(temp)).replaceAll("[^\\d.]", ""));
+				String tempDest = (new String(temp));
+				String tempArr[] = tempDest.split(" ");
+				int dest = Integer.parseInt(tempArr[0]);
+				error = Integer.parseInt(tempArr[1].replaceAll("[^\\d.]", ""));
 				if(currentFloor < dest) {
 					up = true;
 				}
@@ -88,18 +93,30 @@ public class Elevator implements Runnable{
 				currentState = State.DOORCLOSED;
 
 				System.out.println("Elevator "+ this.id +": Doors are closing ");
-
+			}
+			if (currentState == State.DOORCLOSED) {
+				long startTime = System.nanoTime();
 				try {
 					Thread.sleep(3000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}
-			if (currentState == State.DOORCLOSED) {
-
-				currentState = State.MOVING;
-				System.out.println("Elevator "+ this.id +": Moving");
+				if(error == 1) {
+					Thread.sleep(5000);
+					error = 0;
+				}
+				long endTime = System.nanoTime();
+				long elapsedTime = (endTime - startTime)/1000000;
+				if(elapsedTime > 4000) {
+					System.out.println("Elevator "+ this.id +": Doors are blocked (Transient Error)!");
+					currentState = State.DOORCLOSED;
+					System.out.println("Elevator "+ this.id +": Doors are closing again");
+				}
+				else {
+					currentState = State.MOVING;
+					System.out.println("Elevator "+ this.id +": Moving");
+				}
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
