@@ -94,7 +94,7 @@ public class Scheduler implements Runnable {
 			while (true) {
 				if (currentState == State.WAIT_FOR_FLOOR_REQUEST) {
 					// get requests from the floor
-					receivedPacket = new DatagramPacket(new byte[17], 17);
+					receivedPacket = new DatagramPacket(new byte[18], 18);
 					receiveSocket.receive(receivedPacket);// Receive a packet
 					printPacket(receivedPacket, false);
 					if (new String(receivedPacket.getData()).trim().equals("request")) { // If the receivedPacket was a
@@ -367,9 +367,6 @@ public class Scheduler implements Runnable {
 	public PersonRequest parseLine(String line) {
 		// Split the line into an array of substring. Each substring is parsed below
 		String[] elements = line.split(" ");
-		for(int i = 0; i<elements.length; i++) {
-			System.out.println(elements[i]);
-		}
 		// Parse the date substring into an array of floats {<hours>, <minutes>,
 		// <seconds>}
 		String time_string = elements[0];
