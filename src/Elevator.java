@@ -35,7 +35,7 @@ public class Elevator implements Runnable{
 	private int currentFloor;
 	private int port;
 	private int id;
-	private float currentVelocity = 0;
+	private double currentVelocity = 0;
 	private int error = 0;
 	
 	/**
@@ -72,7 +72,7 @@ public class Elevator implements Runnable{
 					if(!(new String(recievedPacket.getData()).trim().equals("NA"))) {//If the response is not null, ie. a actual response
 						receieved=true;	//Break out of loop
 					}
-					Thread.sleep(1000);
+				
 				}
 				byte[] temp = recievedPacket.getData();
 				String tempDest = (new String(temp));
@@ -99,7 +99,7 @@ public class Elevator implements Runnable{
 			if (currentState == State.DOORCLOSED) {
 				long startTime = System.nanoTime();
 				try {
-					Thread.sleep(3000);
+					Thread.sleep(9500);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -110,7 +110,7 @@ public class Elevator implements Runnable{
 				}
 				long endTime = System.nanoTime();
 				long elapsedTime = (endTime - startTime)/1000000;
-				if(elapsedTime > 4000) {
+				if(elapsedTime > 15000) {
 					System.out.println("Elevator "+ this.id +": Doors are blocked (Transient Error)!");
 					currentState = State.DOORCLOSED;
 					System.out.println("Elevator "+ this.id +": Doors are closing again");
@@ -119,56 +119,80 @@ public class Elevator implements Runnable{
 					currentState = State.MOVING;
 					System.out.println("Elevator "+ this.id +": Moving");
 				}
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			
 
 			}
 			if (currentState == State.MOVING) {
+				long startTime = System.nanoTime();
 				boolean stop = false;
 				while(!stop) {	
 					int destFloor = currentFloor;
-					byte[] requestByteArray = String.valueOf(destFloor).getBytes();
+					String help = "Help";
 					DatagramPacket recievedPacket = new DatagramPacket(new byte[17], 17);	//Creates a packet to recieve into
+					if(error==2) {
+						byte[] requestByteArray = String.valueOf(help).getBytes();
+						DatagramPacket requestPacket = new DatagramPacket(requestByteArray, requestByteArray.length, InetAddress.getLocalHost(), 22);
+						//Loop until a non null packet is received
+						socket.send(requestPacket);	//Send a request to the intermediate server
+						socket.receive(recievedPacket);	//Receive the response
+					}
+					else {
+					byte[] requestByteArray = String.valueOf(destFloor).getBytes();
 					DatagramPacket requestPacket = new DatagramPacket(requestByteArray, requestByteArray.length, InetAddress.getLocalHost(), 22);
 					//Loop until a non null packet is received
 					socket.send(requestPacket);	//Send a request to the intermediate server
 					socket.receive(recievedPacket);	//Receive the response
+					}
+					
+					int time = 0;
 					if((new String(recievedPacket.getData()).trim().equals("stop"))) {//If the response is not null, ie. a actual response
 						//Begin Decelerating
 						double a = -0.3;
-						double t = quadratic(a,currentVelocity,4.0);
-						int time = (int)t;
-						Thread.sleep(time);
+						 double t = quadratic(a,currentVelocity,4.0);
+						 time = (int)t;
+						
+						Thread.sleep(Math.abs(time));
 						stop=true;	//Break out of loop
-						break;
+						//break;
 					}
 					//Otherwise continue accelerating at 0.3 m/s^2 or if at top speed continue at top speed
 					if (currentVelocity >= 1.9) {
 						double a = 0;
-						double t = quadratic(a,currentVelocity,4.0);
-						int time = (int)t;
+						 double t = quadratic(a,currentVelocity,4.0);
+						 time = (int)t;
+				
+						
 						Thread.sleep(time);
 					} else {
 						double a = 0.3;
-						double t = quadratic(a,currentVelocity,4.0);
-						int time = (int)t;
-						Thread.sleep(time);
+						 double t = quadratic(a,currentVelocity,4.0);
+						 time = (int)t;
+					
+						currentVelocity = Math.sqrt(currentVelocity*currentVelocity + 2 * a * 4.0);
+						if(currentVelocity > 1.9) {
+							currentVelocity = 1.9;
+						}
+						
+						Thread.sleep(Math.abs(time));
 					}
 					
 					//determine start time
-					Thread.sleep(t);
-					if (errorFlag == 1) {
+					
+					
+					if (error == 2) {
 						
-					} else if (errorFlag == 2) {
+						Thread.sleep(10000);
 						
 					}
-					Thread.sleep(1000);
+					long endTime = System.nanoTime();
+					long elapsedTime = (endTime - startTime)/1000000;
+					if (elapsedTime > time+1000) {
+						currentState=State.STOPPED;
+						
+					}
 					if (up) {
 						currentFloor++;
+						
 						System.out.println("Elevator "+ this.id +": arriving at floor " + currentFloor);
 					}
 					else if(!up) {
@@ -179,21 +203,30 @@ public class Elevator implements Runnable{
 				
 				currentState = State.STOPPED;
 				System.out.println("Elevator "+ this.id +": Stopped");
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				
 
 			}
 			if (currentState == State.STOPPED) {
-				currentState = State.DOOROPEN;
-
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
+				
+				if(error==2) {
+					System.out.println("Waiting for repairs");
+					
+					Thread.sleep(60000);
+					currentState = State.DOOROPEN;
+					String fixed = "fixed";
+					byte[] requestByteArray = String.valueOf(fixed).getBytes();
+					DatagramPacket recievedPacket = new DatagramPacket(new byte[17], 17);	//Creates a packet to recieve into
+					DatagramPacket requestPacket = new DatagramPacket(requestByteArray, requestByteArray.length, InetAddress.getLocalHost(), 22);
+					//Loop until a non null packet is received
+					socket.send(requestPacket);	//Send a request to the intermediate server
+					socket.receive(recievedPacket);	//Receive the response
+					error=0;
 				}
+				else {
+					currentState = State.DOOROPEN;
+				}
+
+				
 		
 			}
 			}

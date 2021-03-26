@@ -36,7 +36,8 @@ public class Scheduler implements Runnable {
 	private static int numElevators;
 	private static int currentFloors[] = { 1, 1, 1, 1 };
 	private static ArrayList<String> elevatorDirection = new ArrayList<String>();
-	private static int elevatorError[] = {0, 0, 0, 0};
+	private static int elevatorError[] = { 0, 0, 0, 0 };
+	private static int elevatorStuck[] = { 0, 0, 0, 0 };
 
 	/**
 	 * The Floor constructor initializes an instance of Scheduler and assigns the
@@ -145,47 +146,49 @@ public class Scheduler implements Runnable {
 						System.out.println("Right here;");
 						for (int i = 0; i < numElevators; i++) {
 							System.out.println("here");
-							if (elevatorDirection.get(i).equals("NA")) {
-								System.out.println("NAAA ");
-								// add the request to this elevator
-								floors.get(i).add(currentFloor);
-								floors.get(i).add(destinationFloor);
-								elevatorError[i] = elevError;
-								System.out.println(floors);
-								elevatorDirection.set(i, direction);
-								scheduledElements.add(request);
-								break;
-							} else if (direction.equals(elevatorDirection.get(i))) {
-								// Check if the elevator is going in
-								if (elevatorDirection.get(i).equals("Up")) {
-									// Now check if the elevator has already passed the currentFloor
-									if (currentFloor > currentFloors[i]) {
-										System.out.println("N 2 ");
-										floors.get(i).add(currentFloor);
-										floors.get(i).add(destinationFloor);
-										elevatorError[i] = elevError;
-										elevatorDirection.set(i, direction);
-										Collections.sort(floors.get(i));
-										scheduledElements.add(request);
-										break;
-									}
-								} else if (elevatorDirection.get(i).equals("Down")) {
-									// Now check if the elevator has already passed the currentFloor
-									System.out.println("N 3 ");
-									if (currentFloor < currentFloors[i]) {
-										floors.get(i).add(currentFloor);
-										floors.get(i).add(destinationFloor);
-										elevatorError[i] = elevError;
-										elevatorDirection.set(i, direction);
-										Collections.reverse(floors.get(i));
-										scheduledElements.add(request);
-										break;
+							if (elevatorStuck[i] != 1) {
+								if (elevatorDirection.get(i).equals("NA")) {
+									System.out.println("NAAA ");
+									// add the request to this elevator
+									floors.get(i).add(currentFloor);
+									floors.get(i).add(destinationFloor);
+									elevatorError[i] = elevError;
+									System.out.println(floors);
+									elevatorDirection.set(i, direction);
+									scheduledElements.add(request);
+									break;
+								} else if (direction.equals(elevatorDirection.get(i))) {
+									// Check if the elevator is going in
+									if (elevatorDirection.get(i).equals("Up")) {
+										// Now check if the elevator has already passed the currentFloor
+										if (currentFloor > currentFloors[i]) {
+											System.out.println("N 2 ");
+											floors.get(i).add(currentFloor);
+											floors.get(i).add(destinationFloor);
+											elevatorError[i] = elevError;
+											elevatorDirection.set(i, direction);
+											Collections.sort(floors.get(i));
+											scheduledElements.add(request);
+											break;
+										}
+									} else if (elevatorDirection.get(i).equals("Down")) {
+										// Now check if the elevator has already passed the currentFloor
+										System.out.println("N 3 ");
+										if (currentFloor < currentFloors[i]) {
+											floors.get(i).add(currentFloor);
+											floors.get(i).add(destinationFloor);
+											elevatorError[i] = elevError;
+											elevatorDirection.set(i, direction);
+											Collections.reverse(floors.get(i));
+											scheduledElements.add(request);
+											break;
+										}
 									}
 								}
 							}
-						}
-						// no elevator is available to handle the request
+							// no elevator is available to handle the request
 
+						}
 					}
 					for (PersonRequest request : scheduledElements) {
 						unscheduledFloors.remove(request);
@@ -229,9 +232,7 @@ public class Scheduler implements Runnable {
 					receiveSocket.receive(receivedResponsePacket);// Receive a packet
 					// printPacket(receivedResponsePacket, false);
 					printPacket(receivedResponsePacket, false);
-					if (new String(receivedResponsePacket.getData()).trim().equals("request")) { // TODO: check for an
-																									// integer rather
-																									// than "request"
+					if (new String(receivedResponsePacket.getData()).trim().equals("request")) {
 						if (receivedResponsePacket.getPort() == 24) {
 							whichQueue = 0;
 						} else if (receivedResponsePacket.getPort() == 25) {
@@ -241,6 +242,7 @@ public class Scheduler implements Runnable {
 						} else if (receivedResponsePacket.getPort() == 27) {
 							whichQueue = 3;
 						}
+
 						if (floors.get(whichQueue).isEmpty()) { // If there are no packets to forward
 							elevatorDirection.set(whichQueue, "NA");
 							ackPacket = new DatagramPacket(negAck, negAck.length, local,
@@ -253,18 +255,43 @@ public class Scheduler implements Runnable {
 							floorsInProgress.get(whichQueue).add(floors.get(whichQueue).get(0));
 							stringReq.append(String.valueOf(floors.get(whichQueue).get(0)));
 							stringReq.append(" ").append(elevatorError[whichQueue]);
-							responsePacket = new DatagramPacket(
-									stringReq.toString().getBytes(),
-									stringReq.toString().getBytes().length, local,
-									receivedResponsePacket.getPort());
+							responsePacket = new DatagramPacket(stringReq.toString().getBytes(),
+									stringReq.toString().getBytes().length, local, receivedResponsePacket.getPort());
 							elevatorError[whichQueue] = 0;
 							floors.get(whichQueue).remove(0);
 							System.out.println("Sending response to elevator");
 							printPacket(responsePacket, true);
 							receiveSocket.send(responsePacket); // Send the first packet waiting
 						}
+					}
 
-					} else {// if the receivedResponsePacket was not a request, it must have been data
+					else if (new String(receivedResponsePacket.getData()).trim().equals("help")) {
+						if (receivedResponsePacket.getPort() == 24) {
+							whichQueue = 0;
+						} else if (receivedResponsePacket.getPort() == 25) {
+							whichQueue = 1;
+						} else if (receivedResponsePacket.getPort() == 26) {
+							whichQueue = 2;
+						} else if (receivedResponsePacket.getPort() == 27) {
+							whichQueue = 3;
+						}
+						elevatorStuck[whichQueue] = 1;
+					}
+
+					else if (new String(receivedResponsePacket.getData()).trim().equals("fixed")) {
+						if (receivedResponsePacket.getPort() == 24) {
+							whichQueue = 0;
+						} else if (receivedResponsePacket.getPort() == 25) {
+							whichQueue = 1;
+						} else if (receivedResponsePacket.getPort() == 26) {
+							whichQueue = 2;
+						} else if (receivedResponsePacket.getPort() == 27) {
+							whichQueue = 3;
+						}
+						elevatorStuck[whichQueue] = 0;
+					}
+
+					else {// if the receivedResponsePacket was not a request, it must have been data
 						if (receivedResponsePacket.getPort() == 24) {
 							whichQueue = 0;
 						} else if (receivedResponsePacket.getPort() == 25) {
@@ -302,11 +329,6 @@ public class Scheduler implements Runnable {
 					currentState = State.WAIT_FOR_ELEVATOR_COMPLETION;
 				}
 
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
