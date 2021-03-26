@@ -60,6 +60,7 @@ public class Elevator implements Runnable{
 			
 			while(true) {
 			if (currentState == State.DOOROPEN) {
+				Thread.sleep(4500);
 				System.out.println("Elevator " + this.id + ": Doors are open");
 				byte[] requestByteArray = "request".getBytes();
 				boolean receieved = false; //defines a flag to check for receieving a actual packet vs a nothing to report packet ("null")
@@ -110,7 +111,7 @@ public class Elevator implements Runnable{
 				}
 				long endTime = System.nanoTime();
 				long elapsedTime = (endTime - startTime)/1000000;
-				if(elapsedTime > 15000) {
+				if(elapsedTime > 14000) {
 					System.out.println("Elevator "+ this.id +": Doors are blocked (Transient Error)!");
 					currentState = State.DOORCLOSED;
 					System.out.println("Elevator "+ this.id +": Doors are closing again");
@@ -120,10 +121,8 @@ public class Elevator implements Runnable{
 					System.out.println("Elevator "+ this.id +": Moving");
 				}
 			
-
 			}
 			if (currentState == State.MOVING) {
-				long startTime = System.nanoTime();
 				boolean stop = false;
 				while(!stop) {	
 					int destFloor = currentFloor;
@@ -136,59 +135,30 @@ public class Elevator implements Runnable{
 						socket.send(requestPacket);	//Send a request to the intermediate server
 						socket.receive(recievedPacket);	//Receive the response
 					}
-					else {
 					byte[] requestByteArray = String.valueOf(destFloor).getBytes();
 					DatagramPacket requestPacket = new DatagramPacket(requestByteArray, requestByteArray.length, InetAddress.getLocalHost(), 22);
 					//Loop until a non null packet is received
 					socket.send(requestPacket);	//Send a request to the intermediate server
 					socket.receive(recievedPacket);	//Receive the response
-					}
+
 					
-					int time = 0;
+					long startTime = System.nanoTime();
 					if((new String(recievedPacket.getData()).trim().equals("stop"))) {//If the response is not null, ie. a actual response
-						//Begin Decelerating
-						double a = -0.3;
-						 double t = quadratic(a,currentVelocity,4.0);
-						 time = (int)t;
-						
-						Thread.sleep(Math.abs(time));
+						Thread.sleep(4500);
 						stop=true;	//Break out of loop
-						//break;
 					}
-					//Otherwise continue accelerating at 0.3 m/s^2 or if at top speed continue at top speed
-					if (currentVelocity >= 1.9) {
-						double a = 0;
-						 double t = quadratic(a,currentVelocity,4.0);
-						 time = (int)t;
-				
-						
-						Thread.sleep(time);
-					} else {
-						double a = 0.3;
-						 double t = quadratic(a,currentVelocity,4.0);
-						 time = (int)t;
-					
-						currentVelocity = Math.sqrt(currentVelocity*currentVelocity + 2 * a * 4.0);
-						if(currentVelocity > 1.9) {
-							currentVelocity = 1.9;
-						}
-						
-						Thread.sleep(Math.abs(time));
-					}
-					
+					Thread.sleep(4500);
 					//determine start time
 					
-					
 					if (error == 2) {
-						
-						Thread.sleep(10000);
-						
+						Thread.sleep(5000);
 					}
 					long endTime = System.nanoTime();
 					long elapsedTime = (endTime - startTime)/1000000;
-					if (elapsedTime > time+1000) {
-						currentState=State.STOPPED;
-						
+					System.out.println(elapsedTime);
+					if (elapsedTime > 9000) {
+						System.out.println("Waiting for repairs");
+						stop=true;
 					}
 					if (up) {
 						currentFloor++;
@@ -207,12 +177,9 @@ public class Elevator implements Runnable{
 
 			}
 			if (currentState == State.STOPPED) {
-				
 				if(error==2) {
 					System.out.println("Waiting for repairs");
-					
 					Thread.sleep(60000);
-					currentState = State.DOOROPEN;
 					String fixed = "fixed";
 					byte[] requestByteArray = String.valueOf(fixed).getBytes();
 					DatagramPacket recievedPacket = new DatagramPacket(new byte[17], 17);	//Creates a packet to recieve into
@@ -220,6 +187,7 @@ public class Elevator implements Runnable{
 					//Loop until a non null packet is received
 					socket.send(requestPacket);	//Send a request to the intermediate server
 					socket.receive(recievedPacket);	//Receive the response
+					currentState = State.DOOROPEN;
 					error=0;
 				}
 				else {

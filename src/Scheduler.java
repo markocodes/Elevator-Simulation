@@ -265,7 +265,7 @@ public class Scheduler implements Runnable {
 						}
 					}
 
-					else if (new String(receivedResponsePacket.getData()).trim().equals("help")) {
+					else if (new String(receivedResponsePacket.getData()).trim().equals("Help")) {
 						if (receivedResponsePacket.getPort() == 24) {
 							whichQueue = 0;
 						} else if (receivedResponsePacket.getPort() == 25) {
