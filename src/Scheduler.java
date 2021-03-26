@@ -163,8 +163,12 @@ public class Scheduler implements Runnable {
 										// Now check if the elevator has already passed the currentFloor
 										if (currentFloor > currentFloors[i]) {
 											System.out.println("N 2 ");
-											floors.get(i).add(currentFloor);
-											floors.get(i).add(destinationFloor);
+											if(!floors.get(i).contains(currentFloor)) {
+												floors.get(i).add(currentFloor);
+											}
+											if(!floors.get(i).contains(destinationFloor)) {
+												floors.get(i).add(destinationFloor);
+											}
 											elevatorError[i] = elevError;
 											elevatorDirection.set(i, direction);
 											Collections.sort(floors.get(i));
@@ -281,6 +285,7 @@ public class Scheduler implements Runnable {
 						printPacket(ackPacket, true);
 						receiveSocket.send(ackPacket);// acknowledge that packet
 						System.out.println("Elevator " + whichQueue + " is broken send help");
+						floors.get(whichQueue).clear();
 					}
 
 					else if (new String(receivedResponsePacket.getData()).trim().equals("fixed")) {
