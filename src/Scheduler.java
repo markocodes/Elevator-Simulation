@@ -276,6 +276,11 @@ public class Scheduler implements Runnable {
 							whichQueue = 3;
 						}
 						elevatorStuck[whichQueue] = 1;
+						ackPacket = new DatagramPacket(ackData, ackData.length, local,
+								receivedResponsePacket.getPort());
+						printPacket(ackPacket, true);
+						receiveSocket.send(ackPacket);// acknowledge that packet
+						System.out.println("Elevator " + whichQueue + " is broken send help");
 					}
 
 					else if (new String(receivedResponsePacket.getData()).trim().equals("fixed")) {
@@ -289,6 +294,11 @@ public class Scheduler implements Runnable {
 							whichQueue = 3;
 						}
 						elevatorStuck[whichQueue] = 0;
+						ackPacket = new DatagramPacket(ackData, ackData.length, local,
+								receivedResponsePacket.getPort());
+						printPacket(ackPacket, true);
+						receiveSocket.send(ackPacket);// acknowledge that packet
+						System.out.println("Elevevator " + whichQueue +" is fixed, can send requests again");
 					}
 
 					else {// if the receivedResponsePacket was not a request, it must have been data

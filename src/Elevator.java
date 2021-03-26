@@ -68,6 +68,7 @@ public class Elevator implements Runnable{
 				DatagramPacket requestPacket = new DatagramPacket(requestByteArray, requestByteArray.length, InetAddress.getLocalHost(), 22);
 
 				while(!receieved) {	//Loop until a non null packet is recieved
+					Thread.sleep(1000);
 					socket.send(requestPacket);	//Send a request to the intermediate server
 					socket.receive(recievedPacket);	//Receive the response
 					if(!(new String(recievedPacket.getData()).trim().equals("NA"))) {//If the response is not null, ie. a actual response
@@ -149,15 +150,12 @@ public class Elevator implements Runnable{
 					}
 					Thread.sleep(4500);
 					//determine start time
-					
 					if (error == 2) {
 						Thread.sleep(5000);
 					}
 					long endTime = System.nanoTime();
 					long elapsedTime = (endTime - startTime)/1000000;
-					System.out.println(elapsedTime);
 					if (elapsedTime > 9000) {
-						System.out.println("Waiting for repairs");
 						stop=true;
 					}
 					if (up) {
@@ -178,7 +176,7 @@ public class Elevator implements Runnable{
 			}
 			if (currentState == State.STOPPED) {
 				if(error==2) {
-					System.out.println("Waiting for repairs");
+					System.out.println("Elevator " + this.id + ": is waiting for repairs");
 					Thread.sleep(60000);
 					String fixed = "fixed";
 					byte[] requestByteArray = String.valueOf(fixed).getBytes();
@@ -187,6 +185,7 @@ public class Elevator implements Runnable{
 					//Loop until a non null packet is received
 					socket.send(requestPacket);	//Send a request to the intermediate server
 					socket.receive(recievedPacket);	//Receive the response
+					System.out.println("Elevator " + this.id + ": is waiting for fixed");
 					currentState = State.DOOROPEN;
 					error=0;
 				}
