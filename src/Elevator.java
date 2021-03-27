@@ -239,7 +239,7 @@ public class Elevator implements Runnable{
 	public static int parseConfig() throws FileNotFoundException {
 		ArrayList<String> configLines = new ArrayList<>();
 
-		File file = new File("building.config.txt");
+		File file = new File("src/building.config.txt");
 		Scanner scanner = new Scanner(file);
 		while (scanner.hasNextLine()) {
 			String line = scanner.nextLine();
@@ -256,6 +256,7 @@ public class Elevator implements Runnable{
 	public int getPort() {
 		return port;
 	}
+
 	public double quadratic(double a,double b,double c) {
 
 	    // value a, b, and c
@@ -283,7 +284,6 @@ public class Elevator implements Runnable{
 
 	    // if determinant is less than zero
 	    else {
-
 	      // roots are complex number and distinct
 	      double real = -b / (2 * a);
 	      double imaginary = Math.sqrt(-determinant) / (2 * a);
@@ -291,6 +291,8 @@ public class Elevator implements Runnable{
 	    }
 	    return root1;
 	  }
+
+
 	public static void main(String[] args) throws FileNotFoundException {
 		int elevatorCount = parseConfig();
 
