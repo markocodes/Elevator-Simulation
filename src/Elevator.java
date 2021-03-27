@@ -239,7 +239,7 @@ public class Elevator implements Runnable{
 	public static int parseConfig() throws FileNotFoundException {
 		ArrayList<String> configLines = new ArrayList<>();
 
-		File file = new File("src/building.config.txt");
+		File file = new File("building.config.txt");
 		Scanner scanner = new Scanner(file);
 		while (scanner.hasNextLine()) {
 			String line = scanner.nextLine();
