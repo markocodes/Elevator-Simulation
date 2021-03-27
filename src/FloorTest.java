@@ -10,9 +10,10 @@ import org.junit.jupiter.api.Test;
  * Test class for the Floor class
  *
  * @author Group 5
- * @version 2021-03-13
+ * @version 2021-03-27
  */
 class FloorTest{
+
 	@Test
 	void parseLineTest(){
 		Floor floor = new Floor(1, 5000);
@@ -23,6 +24,9 @@ class FloorTest{
 	}
 
 	@Test
+	/**
+	 * Tests if file is read and parsed correctly.
+	 */
 	void readFileTest(){
 		Floor floor = new Floor(2, 5000);
 		ArrayList<PersonRequest> personRequests = new ArrayList<>();
@@ -31,33 +35,21 @@ class FloorTest{
 	}
 
 	@Test
+	/**
+	 * Tests if config file is parsed and read correctly.
+	 */
 	void parseConfigTest() throws FileNotFoundException {
 		assertEquals(7, Floor.parseConfig());
 	}
 
 	@Test
+	/**
+	 * Tests if the correct byte array is generated from PersonRequest.
+	 */
 	void generateByteArrayTest(){
 		float[] arr = new float[]{Float.parseFloat("14"), Float.parseFloat("5"), Float.parseFloat("15")};
 		PersonRequest personRequest = new PersonRequest(arr, 2, true, 4, 0);
 		assertEquals(49, Floor.generateByteArray(personRequest)[0]);
-	}
-
-	@Test
-	/**
-	 * Test that floor sockets are working properly
-	 */
-
-	void FloorSocketTest() {
-		boolean result = false;
-		try {
-			// ServerSocket try to open a LOCAL port
-			new ServerSocket(22).close();
-			// local port can be opened, it's available
-			assertFalse(result);
-
-		} catch(IOException e) {
-			result = true;
-		}
 	}
 
 }
