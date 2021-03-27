@@ -204,7 +204,7 @@ public class Elevator implements Runnable{
 					//Loop until a non null packet is received
 					socket.send(requestPacket);	//Send a request to the intermediate server
 					socket.receive(recievedPacket);	//Receive the response
-					System.out.println(java.time.LocalTime.now()+"  Elevator " + this.id + ": is waiting to be fixed");
+					System.out.println(java.time.LocalTime.now().format(dtf)+"  Elevator " + this.id + ": is waiting to be fixed");
 					currentState = State.DOOROPEN;
 					error=0;
 				}
