@@ -35,21 +35,14 @@ public class Floor implements Runnable {
 	 * accessed by the Scheduler thread.
 	 */
 	public void run() {
-		
-		
-		 ArrayList<PersonRequest> dataLines = readFile();
-			
-		
-		
+		ArrayList<PersonRequest> dataLines = readFile();
 		try {
 			int numberOfSuccessfulPackets = 0;
 			DatagramSocket socket = new DatagramSocket(port); // Creates a new socket. This will be used for sending and recieving packets
 			InetAddress local = InetAddress.getLocalHost(); // Gets the local address of the computer
 
 			for (PersonRequest request : dataLines) {
-
 				byte[] dataArray = generateByteArray(request);
-
 				DatagramPacket packetToSend = new DatagramPacket(dataArray, dataArray.length, local, 23); // Creates a packet from the dataArray, to be sent to the intermediate host.
 				DatagramPacket replyPacket = new DatagramPacket(new byte[21], 21); // Creates a packet to recieve the acknowledgement in.
 				printPacket(packetToSend, true); // Prints the contents of the packet to be sent
@@ -71,19 +64,10 @@ public class Floor implements Runnable {
 			socket.send(ackPacket);// acknowledge that packet
 			
 			socket.close(); // Close the socket
-		} catch (
-
-		IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		
-		}
-
-		
-		
-		
-	
+	}
 
 	/**
 	 * Parses a text file and creates an ArrayList of PersonRequest objects
@@ -101,10 +85,7 @@ public class Floor implements Runnable {
 				PersonRequest ah = 	parseLine(line);
 				if(ah.getFloor()==floor) {
 					dataLines.add(ah);
-					
-			
 				}
-				
 			}
 			scanner.close();
 		} catch (FileNotFoundException e) {

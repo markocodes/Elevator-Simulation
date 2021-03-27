@@ -17,6 +17,19 @@ import static org.junit.jupiter.api.Assertions.*;
 class SchedulerTest {
 
     @Test
+    void parseLineTest(){
+        Scheduler scheduler = new Scheduler(23, "Scheduler1");
+        float[] arr = new float[]{Float.parseFloat("14"), Float.parseFloat("5"), Float.parseFloat("15")};
+        PersonRequest personRequest = new PersonRequest(arr, 2, true, 4, 0);
+        assertEquals(personRequest.getTime()[0],scheduler.parseLine("14:05:15.0 2 Up 4 0").getTime()[0]);
+    }
+
+    @Test
+    void runTest(){
+        
+    }
+
+    @Test
     /**
      * Test that scheduler sockets work properly.
      */
