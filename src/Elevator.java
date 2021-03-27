@@ -311,6 +311,9 @@ public class Elevator implements Runnable{
 	    return root1;
 	  }
 
+	public int getError() {
+		return error;
+	}
 
 	public static void main(String[] args) throws FileNotFoundException {
 		int elevatorCount = parseConfig();

@@ -3,7 +3,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.ServerSocket;
+import java.net.*;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -51,45 +51,55 @@ class ElevatorTest {
         assertEquals(-0.0, elevator.quadratic(2, 0, 0));
     }
 
-
+    @Test
+    void faultTestLevel2() throws IOException, InterruptedException {
+        Elevator elevator = new Elevator(1,24, 1);
+        Thread thread = new Thread(elevator);
+        thread.start();
+        String fault = "2 2";
+        byte[] bytes = fault.getBytes();
+        DatagramSocket sendSocket = new DatagramSocket();
+        DatagramSocket receiveSocket = new DatagramSocket(22);
+        DatagramPacket receivePacket = new DatagramPacket(new byte[10], 10);
+        receiveSocket.receive(receivePacket);
+        DatagramPacket sendPacket = new DatagramPacket(bytes, bytes.length, InetAddress.getLocalHost(), 24);
+        sendSocket.send(sendPacket);
+        Thread.sleep(5000);
+        assertEquals(2,elevator.getError());
+    }
 
     @Test
-    /**
-     * Test that elevator sockets are working properly.
-     */
-
-    void ElevatorSocketTest() {
-        boolean result = false;
-        try {
-            // ServerSocket try to open a LOCAL port
-            new ServerSocket(24).close();
-            // local port can be opened, it's available
-            assertFalse(result);
-        } catch (IOException e) {
-            result = true;
-        }
-        try {
-            new ServerSocket(25).close();
-
-            // local port can be opened, it's available
-            assertFalse(result);
-        } catch (IOException e) {
-            result = true;
-        }
-        try {
-            new ServerSocket(26).close();
-            // local port can be opened, it's available
-            assertFalse(result);
-        } catch (IOException e) {
-            result = true;
-        }
-        try {
-            new ServerSocket(27).close();
-            // local port can be opened, it's available
-            assertFalse(result);
-        } catch (IOException e) {
-            result = true;
-        }
-
+    void faultTestLevel1() throws IOException, InterruptedException {
+        Elevator elevator = new Elevator(1,24, 1);
+        Thread thread = new Thread(elevator);
+        thread.start();
+        String fault = "2 1";
+        byte[] bytes = fault.getBytes();
+        DatagramSocket sendSocket = new DatagramSocket();
+        DatagramSocket receiveSocket = new DatagramSocket(22);
+        DatagramPacket receivePacket = new DatagramPacket(new byte[10], 10);
+        receiveSocket.receive(receivePacket);
+        DatagramPacket sendPacket = new DatagramPacket(bytes, bytes.length, InetAddress.getLocalHost(), 24);
+        sendSocket.send(sendPacket);
+        Thread.sleep(2000);
+        assertEquals(1,elevator.getError());
     }
+
+    @Test
+    void faultTestLevel0() throws IOException, InterruptedException {
+        Elevator elevator = new Elevator(1,24, 1);
+        Thread thread = new Thread(elevator);
+        thread.start();
+        String fault = "2 0";
+        byte[] bytes = fault.getBytes();
+        DatagramSocket sendSocket = new DatagramSocket();
+        DatagramSocket receiveSocket = new DatagramSocket(22);
+        DatagramPacket receivePacket = new DatagramPacket(new byte[10], 10);
+        receiveSocket.receive(receivePacket);
+        DatagramPacket sendPacket = new DatagramPacket(bytes, bytes.length, InetAddress.getLocalHost(), 24);
+        sendSocket.send(sendPacket);
+        Thread.sleep(1000);
+        assertEquals(0,elevator.getError());
+    }
+
 }
