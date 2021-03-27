@@ -169,7 +169,7 @@ public class Elevator implements Runnable{
 					//determine start time
 				
 					if (error == 2) {
-						Thread.sleep(5000);
+						Thread.sleep(10000);
 					}
 					if (up) {
 						currentFloor++;
@@ -258,7 +258,7 @@ public class Elevator implements Runnable{
 	public static int parseConfig() throws FileNotFoundException {
 		ArrayList<String> configLines = new ArrayList<>();
 
-		File file = new File("building.config.txt");
+		File file = new File("src/building.config.txt");
 		Scanner scanner = new Scanner(file);
 		while (scanner.hasNextLine()) {
 			String line = scanner.nextLine();
