@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
-/**
- * Implements the floor class which represents the floors of the system.
+ /* Implements the floor class which represents the floors of the system.
  * 
  * @author Group 5
  * @version 2021-03-13
@@ -35,7 +35,11 @@ public class Floor implements Runnable {
 	 * accessed by the Scheduler thread.
 	 */
 	public void run() {
+<<<<<<< HEAD
+		 ArrayList<PersonRequest> dataLines = readFile();
+=======
 		ArrayList<PersonRequest> dataLines = readFile();
+>>>>>>> branch 'master' of https://github.com/markocodes/SYSC3303_Project
 		try {
 			int numberOfSuccessfulPackets = 0;
 			DatagramSocket socket = new DatagramSocket(port); // Creates a new socket. This will be used for sending and recieving packets
@@ -92,6 +96,7 @@ public class Floor implements Runnable {
 			System.out.println("An error occurred.");
 			e.printStackTrace();
 		}
+		
 		return dataLines;
 		
 	}
@@ -157,8 +162,9 @@ public class Floor implements Runnable {
 	 */
 
 	public void printPacket(DatagramPacket receivedPacket, boolean sending) {
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss.SS");
 		if (!sending) { // If the packet was recieved
-			System.out.println("Floor" + floor +":"+ "Received the following packet (String): " + new String(receivedPacket.getData()));
+			System.out.println(java.time.LocalTime.now().format(dtf)+ "Floor" + floor +":"+ "Received the following packet (String): " + new String(receivedPacket.getData()));
 			//System.out.println("Recived the following packet (Bytes): "); // but this is what the assignment said to do)
 			for (int z = 0; z < receivedPacket.getData().length - 1; z++) { // Prints the byte array one index at a time
 				System.out.print(receivedPacket.getData()[z] + ", ");
@@ -167,7 +173,7 @@ public class Floor implements Runnable {
 			System.out.println("From:" + receivedPacket.getAddress() + " on port: " + receivedPacket.getPort());
 			System.out.println(""); // Adds a newline between packet sending and receiving
 		} else { // The packet is being sent
-			System.out.println("Floor" + floor + ": Sending the following packet (String): " + new String(receivedPacket.getData()));
+			System.out.println(java.time.LocalTime.now().format(dtf)+ "Floor" + floor + ": Sending the following packet (String): " + new String(receivedPacket.getData()));
 			//System.out.println("Sending the following packet (Bytes): "); // but this is what the assignment said to do)
 			for (int z = 0; z < receivedPacket.getData().length - 1; z++) { // Prints the byte array one index at a time
 				System.out.print(receivedPacket.getData()[z] + ", ");

@@ -3,6 +3,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -65,7 +66,8 @@ public class Scheduler implements Runnable {
 		}
 		try {
 			receiveSocket = new DatagramSocket(portNumber);// Initialize a Datagram socket
-			System.out.println(name + " is running on port: " + portNumber);
+			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss.SS");
+			System.out.println(java.time.LocalTime.now().format(dtf)+name + "  is running on port: " + portNumber);
 		} catch (SocketException se) {
 			// The program exits if socket creation failed
 			se.printStackTrace();
@@ -75,6 +77,7 @@ public class Scheduler implements Runnable {
 
 	@Override
 	public void run() {
+		
 		if (currentState == State.WAIT_FOR_FLOOR_REQUEST) {
 			floorToElevatorFSM();
 		} else if (currentState == State.WAIT_FOR_ELEVATOR_COMPLETION) {
@@ -87,6 +90,7 @@ public class Scheduler implements Runnable {
 	 * the floor to elevator.
 	 */
 	public void floorToElevatorFSM() {
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss.SS");
 		try {
 			local = InetAddress.getLocalHost(); // Creates inetaddress containing localhost
 			byte[] ackData = "ack".getBytes(); // Defines ack byte array
@@ -217,6 +221,7 @@ public class Scheduler implements Runnable {
 	 * elevator to the floor.
 	 */
 	public void elevatorToFloorFSM() {
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss.SS");
 		try {
 			local = InetAddress.getLocalHost(); // Creates inetaddress containing localhost
 			byte[] ackData = "ack".getBytes(); // Defines ack byte array
@@ -284,7 +289,7 @@ public class Scheduler implements Runnable {
 								receivedResponsePacket.getPort());
 						printPacket(ackPacket, true);
 						receiveSocket.send(ackPacket);// acknowledge that packet
-						System.out.println("Elevator " + whichQueue + " is broken send help");
+						System.out.println(java.time.LocalTime.now().format(dtf)+ "  Elevator " + whichQueue + " is broken send help");
 						floors.get(whichQueue).clear();
 					}
 
@@ -303,7 +308,7 @@ public class Scheduler implements Runnable {
 								receivedResponsePacket.getPort());
 						printPacket(ackPacket, true);
 						receiveSocket.send(ackPacket);// acknowledge that packet
-						System.out.println("Elevevator " + whichQueue +" is fixed, can send requests again");
+						System.out.println(java.time.LocalTime.now().format(dtf)+ "  Elevevator " + whichQueue +" is fixed, can send requests again");
 					}
 
 					else {// if the receivedResponsePacket was not a request, it must have been data
@@ -320,8 +325,8 @@ public class Scheduler implements Runnable {
 						// Determine whether or not the elevator should stop here
 						floorSensor = Integer
 								.parseInt((new String(receivedResponsePacket.getData())).replaceAll("[^\\d.]", ""));
-						System.out.println("Floor sensor triggered for floor " + floorSensor + "!");
-						System.out.println("FloorSensor:  " + floorSensor);
+						System.out.println(java.time.LocalTime.now().format(dtf) + "  Floor sensor triggered for floor " + floorSensor + "!");
+						System.out.println(java.time.LocalTime.now().format(dtf) +"  FloorSensor:  " + floorSensor);
 						if (floorsInProgress.get(whichQueue).contains(floorSensor)) {
 							ackData = "stop".getBytes();
 							floorsInProgress.get(whichQueue)
@@ -335,12 +340,12 @@ public class Scheduler implements Runnable {
 						receiveSocket.send(ackPacket);// acknowledge that packet
 						queue.add(receivedResponsePacket); // Enqueue the packet
 						currentFloors[whichQueue] = floorSensor;
-						System.out.println("6. Requests obtained by Scheduler Thread!");
+						System.out.println(java.time.LocalTime.now().format(dtf) + " Requests obtained by Scheduler Thread!");
 					}
 					currentState = State.SENDING_REQUEST_TO_FLOOR;
 				} else if (currentState == State.SENDING_REQUEST_TO_FLOOR) {
 					// Send response to floor
-					System.out.println("7. Requests put by Scheduler Thread!");
+					System.out.println(java.time.LocalTime.now().format(dtf)+ " Requests put by Scheduler Thread!");
 					currentState = State.WAIT_FOR_ELEVATOR_COMPLETION;
 				}
 
@@ -359,27 +364,28 @@ public class Scheduler implements Runnable {
 	 *                was recieved
 	 */
 	public void printPacket(DatagramPacket packet, boolean sending) {
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss.SS");
 		if (!sending) { // If the packet was received
-			System.out.println(Thread.currentThread().getName() + ": Received the following packet (String): "
+			System.out.println(java.time.LocalTime.now().format(dtf)+ Thread.currentThread().getName() + ": Received the following packet (String): "
 					+ new String(packet.getData())); // Print data as string (Binary values will not appear correctly in
 														// the string,
-			System.out.println("Recived the following packet (Bytes): "); // but this is what the assignment said to do)
+			System.out.println( "  Recived the following packet (Bytes): "); // but this is what the assignment said to do)
 			for (int z = 0; z < packet.getData().length - 1; z++) { // Prints the byte array one index at a time
 				System.out.print(packet.getData()[z] + ", ");
 			}
 			System.out.println(packet.getData()[packet.getData().length - 1]);
-			System.out.println("From:" + packet.getAddress() + " on port: " + packet.getPort());
+			System.out.println(" From:" + packet.getAddress() + " on port: " + packet.getPort());
 			System.out.println(""); // Adds a newline between packet sending and receiving
 		} else { // The packet is being sent
 			System.out.println(Thread.currentThread().getName() + ": Sending the following packet (String): "
 					+ new String(packet.getData()));// Print data as string (Binary values will not appear correctly in
 													// the string,
-			System.out.println("Sending the following packet (Bytes): "); // but this is what the assignment said to do)
+			System.out.println(java.time.LocalTime.now().format(dtf)+"  Sending the following packet (Bytes): "); // but this is what the assignment said to do)
 			for (int z = 0; z < packet.getData().length - 1; z++) { // Prints the byte array one index at a time
 				System.out.print(packet.getData()[z] + ", ");
 			}
 			System.out.println(packet.getData()[packet.getData().length - 1]);
-			System.out.println("To:" + packet.getAddress() + " on port: " + packet.getPort());
+			System.out.println(" To:" + packet.getAddress() + " on port: " + packet.getPort());
 			System.out.println(""); // Adds a newline between packet sending and receiving
 		}
 	}
