@@ -125,10 +125,10 @@ public class Elevator implements Runnable{
 					System.out.println(java.time.LocalTime.now().format(dtf)+"  Elevator "+ this.id +": Doors are closing again");
 				}
 				else {
+					System.out.println(java.time.LocalTime.now().format(dtf)+"  Elevator "+ this.id +": Doors are closed ");
 					currentState = State.MOVING;
 					System.out.println(java.time.LocalTime.now().format(dtf)+"  Elevator "+ this.id +": Moving");
 				}
-				System.out.println(java.time.LocalTime.now().format(dtf)+"  Elevator "+ this.id +": Doors are closed ");
 			
 			}
 			if (currentState == State.MOVING) {
