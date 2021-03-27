@@ -1,4 +1,6 @@
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
@@ -28,6 +30,18 @@ class FloorTest{
 
 		} catch(IOException e) {
 			result = true;
+		}
+	}
+	@Test
+	/**
+	 * Test that number of floors match the config file
+	 */
+	void ConfigTest() {
+		try {
+			assertEquals(7, Floor.parseConfig());
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
