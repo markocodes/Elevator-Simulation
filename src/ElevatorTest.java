@@ -12,13 +12,10 @@ import static org.junit.jupiter.api.Assertions.*;
  * Test class for the Elevator class
  *
  * @author Group 5
- * @version 2021-03-13
+ * @version 2021-03-27
  */
 class ElevatorTest {
-
-    @BeforeEach
-    void setUp() {
-    }
+    /* PLEASE NOTE: These tests CANNOT be run concurrently, and must be run individually due to port occupancy issues. */
 
     @Test
     /**
@@ -39,11 +36,17 @@ class ElevatorTest {
     }
 
     @Test
+    /**
+     * Test if config file is parsed and read correctly.
+     */
     void parseConfigTest() throws FileNotFoundException {
         assertEquals(4, Elevator.parseConfig());
     }
 
     @Test
+    /**
+     * Tests if the quadratic method will return the correct roots.
+     */
     void quadraticTest(){
         Elevator elevator = new Elevator(1, 24, 1);
         assertEquals(-3.0, elevator.quadratic(-1, -5, -6));
@@ -52,6 +55,9 @@ class ElevatorTest {
     }
 
     @Test
+    /**
+     * Tests if elevator registers a level 2 (Permanent) error.
+     */
     void faultTestLevel2() throws IOException, InterruptedException {
         Elevator elevator = new Elevator(1,24, 1);
         Thread thread = new Thread(elevator);
@@ -69,6 +75,9 @@ class ElevatorTest {
     }
 
     @Test
+    /**
+     * Tests if elevator registers a level 1 (transient) error.
+     */
     void faultTestLevel1() throws IOException, InterruptedException {
         Elevator elevator = new Elevator(1,24, 1);
         Thread thread = new Thread(elevator);
@@ -86,6 +95,9 @@ class ElevatorTest {
     }
 
     @Test
+    /**
+     * Tests that elevator does not register false errors.
+     */
     void faultTestLevel0() throws IOException, InterruptedException {
         Elevator elevator = new Elevator(1,24, 1);
         Thread thread = new Thread(elevator);
@@ -101,5 +113,4 @@ class ElevatorTest {
         Thread.sleep(1000);
         assertEquals(0,elevator.getError());
     }
-
 }
