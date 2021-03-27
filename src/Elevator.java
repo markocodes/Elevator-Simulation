@@ -6,6 +6,9 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.time.format.DateTimeFormatter;  
+import java.time.LocalDateTime;    
+/**
 
 
 /**
@@ -38,6 +41,7 @@ public class Elevator implements Runnable{
 	private double currentVelocity = 0;
 	private int error = 0;
 	
+	
 	/**
 	 * The Floor constructor initializes an instance of Scheduler and assigns the shared Controller instance
 	 */
@@ -54,21 +58,23 @@ public class Elevator implements Runnable{
 
 	@Override
 	public void run() {
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss.SS");
 		destination = new ArrayList<Integer>();
+		
+	
 		try {
 			DatagramSocket socket = new DatagramSocket(port);	//Creates socket bound to each elevators port
 			
 			while(true) {
 			if (currentState == State.DOOROPEN) {
-				Thread.sleep(4500);
-				System.out.println("Elevator " + this.id + ": Doors are open");
+				Thread.sleep(4750);
+				System.out.println(java.time.LocalTime.now().format(dtf) +"  Elevator " + this.id + ": Doors are open");
 				byte[] requestByteArray = "request".getBytes();
 				boolean receieved = false; //defines a flag to check for receieving a actual packet vs a nothing to report packet ("null")
 				DatagramPacket recievedPacket = new DatagramPacket(new byte[18], 18);	//Creates a packet to recieve into
 				DatagramPacket requestPacket = new DatagramPacket(requestByteArray, requestByteArray.length, InetAddress.getLocalHost(), 22);
 
 				while(!receieved) {	//Loop until a non null packet is recieved
-					Thread.sleep(1000);
 					socket.send(requestPacket);	//Send a request to the intermediate server
 					socket.receive(recievedPacket);	//Receive the response
 					if(!(new String(recievedPacket.getData()).trim().equals("NA"))) {//If the response is not null, ie. a actual response
@@ -88,20 +94,21 @@ public class Elevator implements Runnable{
 					up = false;
 				}
 				
-				System.out.println("Elevator "+ this.id +": Requests obtained by Elevator to floor " + dest);
+				System.out.println(java.time.LocalTime.now().format(dtf) +"  Elevator "+ this.id +": Requests obtained by Elevator to floor " + dest);
 				
 					if (response != currentFloor) {
 						destination.add(response);
 					destination.sort(null);
 				}
 				currentState = State.DOORCLOSED;
+				
 
-				System.out.println("Elevator "+ this.id +": Doors are closing ");
+				System.out.println(java.time.LocalTime.now().format(dtf)+"  Elevator "+ this.id +": Doors are closing ");
 			}
 			if (currentState == State.DOORCLOSED) {
 				long startTime = System.nanoTime();
 				try {
-					Thread.sleep(9500);
+					Thread.sleep(4750);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -112,20 +119,23 @@ public class Elevator implements Runnable{
 				}
 				long endTime = System.nanoTime();
 				long elapsedTime = (endTime - startTime)/1000000;
-				if(elapsedTime > 14000) {
-					System.out.println("Elevator "+ this.id +": Doors are blocked (Transient Error)!");
+				if(elapsedTime > 9000) {
+					System.out.println(java.time.LocalTime.now().format(dtf) +"  Elevator "+ this.id +": Doors are blocked (Transient Error)!");
 					currentState = State.DOORCLOSED;
-					System.out.println("Elevator "+ this.id +": Doors are closing again");
+					System.out.println(java.time.LocalTime.now().format(dtf)+"  Elevator "+ this.id +": Doors are closing again");
 				}
 				else {
 					currentState = State.MOVING;
-					System.out.println("Elevator "+ this.id +": Moving");
+					System.out.println(java.time.LocalTime.now().format(dtf)+"  Elevator "+ this.id +": Moving");
 				}
+				System.out.println(java.time.LocalTime.now().format(dtf)+"  Elevator "+ this.id +": Doors are closed ");
 			
 			}
 			if (currentState == State.MOVING) {
 				boolean stop = false;
+				boolean firstLoop = true;
 				while(!stop) {	
+					
 					int destFloor = currentFloor;
 					String help = "Help";
 					DatagramPacket recievedPacket = new DatagramPacket(new byte[17], 17);	//Creates a packet to recieve into
@@ -144,39 +154,48 @@ public class Elevator implements Runnable{
 
 					
 					long startTime = System.nanoTime();
+					
 					if((new String(recievedPacket.getData()).trim().equals("stop"))) {//If the response is not null, ie. a actual response
-						Thread.sleep(4500);
-						stop=true;	//Break out of loop
+						if(firstLoop) {	
+							Thread.sleep(7303);
+							stop=true;
+						}
+						else {
+							Thread.sleep(5186);
+							stop=true;	//Break out of loop	
+					}	
 					}
-					Thread.sleep(4500);
+					Thread.sleep(2832);
 					//determine start time
+				
 					if (error == 2) {
 						Thread.sleep(5000);
+					}
+					if (up) {
+						currentFloor++;
+						
+						System.out.println(java.time.LocalTime.now().format(dtf)+"  Elevator "+ this.id +": arriving at floor " + currentFloor);
+					}
+					else if(!up) {
+						currentFloor--;
+						System.out.println(java.time.LocalTime.now().format(dtf)+"  Elevator "+ this.id +": arriving at floor " + currentFloor);
 					}
 					long endTime = System.nanoTime();
 					long elapsedTime = (endTime - startTime)/1000000;
 					if (elapsedTime > 9000) {
 						stop=true;
 					}
-					if (up) {
-						currentFloor++;
-						
-						System.out.println("Elevator "+ this.id +": arriving at floor " + currentFloor);
-					}
-					else if(!up) {
-						currentFloor--;
-						System.out.println("Elevator "+ this.id +": arriving at floor " + currentFloor);
-					}
+					firstLoop = false;
 				}
 				
 				currentState = State.STOPPED;
-				System.out.println("Elevator "+ this.id +": Stopped");
+				System.out.println(java.time.LocalTime.now().format(dtf)+"  Elevator "+ this.id +": Stopped");
 				
 
 			}
 			if (currentState == State.STOPPED) {
 				if(error==2) {
-					System.out.println("Elevator " + this.id + ": is waiting for repairs");
+					System.out.println(java.time.LocalTime.now().format(dtf)+"  Elevator " + this.id + ": is waiting for repairs");
 					Thread.sleep(60000);
 					String fixed = "fixed";
 					byte[] requestByteArray = String.valueOf(fixed).getBytes();
@@ -185,7 +204,7 @@ public class Elevator implements Runnable{
 					//Loop until a non null packet is received
 					socket.send(requestPacket);	//Send a request to the intermediate server
 					socket.receive(recievedPacket);	//Receive the response
-					System.out.println("Elevator " + this.id + ": is waiting for fixed");
+					System.out.println(java.time.LocalTime.now()+"  Elevator " + this.id + ": is waiting to be fixed");
 					currentState = State.DOOROPEN;
 					error=0;
 				}
