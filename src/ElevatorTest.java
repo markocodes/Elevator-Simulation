@@ -83,8 +83,6 @@ class ElevatorTest {
      */
     void quadraticTest() {
     	
-    	Elevator roots = new Elevator(0, 0, 0 );
-    	
     	assertEquals(-1, roots.quadratic(1,2,1)); 
     }
     @Test
