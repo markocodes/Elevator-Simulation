@@ -125,10 +125,10 @@ public class Elevator implements Runnable{
 					System.out.println(java.time.LocalTime.now().format(dtf)+"  Elevator "+ this.id +": Doors are closing again");
 				}
 				else {
+					System.out.println(java.time.LocalTime.now().format(dtf)+"  Elevator "+ this.id +": Doors are closed ");
 					currentState = State.MOVING;
 					System.out.println(java.time.LocalTime.now().format(dtf)+"  Elevator "+ this.id +": Moving");
 				}
-				System.out.println(java.time.LocalTime.now().format(dtf)+"  Elevator "+ this.id +": Doors are closed ");
 			
 			}
 			if (currentState == State.MOVING) {
@@ -159,10 +159,12 @@ public class Elevator implements Runnable{
 						if(firstLoop) {	
 							Thread.sleep(7303);
 							stop=true;
+							break;
 						}
 						else {
 							Thread.sleep(5186);
 							stop=true;	//Break out of loop	
+							break;
 					}	
 					}
 					Thread.sleep(2832);
@@ -190,8 +192,6 @@ public class Elevator implements Runnable{
 				
 				currentState = State.STOPPED;
 				System.out.println(java.time.LocalTime.now().format(dtf)+"  Elevator "+ this.id +": Stopped");
-				
-
 			}
 			if (currentState == State.STOPPED) {
 				if(error==2) {
