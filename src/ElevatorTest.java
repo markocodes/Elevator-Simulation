@@ -1,6 +1,7 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
@@ -83,8 +84,23 @@ class ElevatorTest {
      */
     void quadraticTest() {
     	
-    	assertEquals(-1, roots.quadratic(1,2,1)); 
+    	//Elevator roots = new Elevator(0, 0, 0 );
+    	
+    	assertEquals(-1, Elevator.quadratic(1,2,1)); 
     }
+    
+    @Test
+	/**
+	 * Test that number of floors match the config file
+	 */
+	void ConfigTest() {
+		try {
+			assertEquals(4, Elevator.parseConfig());
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
     @Test
     /**
     * Test that elevators errors work properly.
