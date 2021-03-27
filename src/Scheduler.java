@@ -221,7 +221,7 @@ public class Scheduler implements Runnable {
 			local = InetAddress.getLocalHost(); // Creates inetaddress containing localhost
 			byte[] ackData = "ack".getBytes(); // Defines ack byte array
 			byte[] negAck = "NA".getBytes();
-			int floorSensor;
+			int floorSensor, nextFloorSensor1;
 			DatagramPacket responsePacket;
 			while (true) {
 				int whichQueue = 0;
@@ -320,12 +320,17 @@ public class Scheduler implements Runnable {
 						// Determine whether or not the elevator should stop here
 						floorSensor = Integer
 								.parseInt((new String(receivedResponsePacket.getData())).replaceAll("[^\\d.]", ""));
+						if (elevatorDirection.get(whichQueue).equals("Up")) {
+							nextFloorSensor1 = floorSensor+1;
+						} else {
+							nextFloorSensor1 = floorSensor-1;
+						}
 						System.out.println("Floor sensor triggered for floor " + floorSensor + "!");
 						System.out.println("FloorSensor:  " + floorSensor);
-						if (floorsInProgress.get(whichQueue).contains(floorSensor)) {
+						if (floorsInProgress.get(whichQueue).contains(nextFloorSensor1)) {
 							ackData = "stop".getBytes();
 							floorsInProgress.get(whichQueue)
-									.remove(floorsInProgress.get(whichQueue).indexOf(floorSensor));
+									.remove(floorsInProgress.get(whichQueue).indexOf(nextFloorSensor1));
 						} else {
 							ackData = "no".getBytes();
 						}

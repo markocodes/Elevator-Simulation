@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.lang.Math;
 
 
 /**
@@ -32,11 +33,16 @@ public class Elevator implements Runnable{
 	private boolean up;
 	private int response;
 	private ArrayList<Integer> destination;
-	private int currentFloor;
 	private int port;
 	private int id;
-	private double currentVelocity = 0;
 	private int error = 0;
+	
+	private int currentFloor;
+	private double a;
+	private double currentVelocity = 0;
+	private static double MAX_VELOCITY = 1.4123;
+	private static int timeToNextFloor;
+
 	
 	/**
 	 * The Floor constructor initializes an instance of Scheduler and assigns the shared Controller instance
@@ -90,8 +96,8 @@ public class Elevator implements Runnable{
 				
 				System.out.println("Elevator "+ this.id +": Requests obtained by Elevator to floor " + dest);
 				
-					if (response != currentFloor) {
-						destination.add(response);
+				if (dest != currentFloor) {
+					destination.add(dest);
 					destination.sort(null);
 				}
 				currentState = State.DOORCLOSED;
@@ -125,8 +131,11 @@ public class Elevator implements Runnable{
 			}
 			if (currentState == State.MOVING) {
 				boolean stop = false;
+				long elapsedTime=0, endTime, startTime;
+				int destFloor;
+				a = 0.3;
 				while(!stop) {	
-					int destFloor = currentFloor;
+					destFloor = destination.get(0);
 					String help = "Help";
 					DatagramPacket recievedPacket = new DatagramPacket(new byte[17], 17);	//Creates a packet to recieve into
 					if(error==2) {
@@ -136,31 +145,38 @@ public class Elevator implements Runnable{
 						socket.send(requestPacket);	//Send a request to the intermediate server
 						socket.receive(recievedPacket);	//Receive the response
 					}
-					byte[] requestByteArray = String.valueOf(destFloor).getBytes();
+					byte[] requestByteArray = String.valueOf(currentFloor).getBytes();
 					DatagramPacket requestPacket = new DatagramPacket(requestByteArray, requestByteArray.length, InetAddress.getLocalHost(), 22);
 					//Loop until a non null packet is received
 					socket.send(requestPacket);	//Send a request to the intermediate server
 					socket.receive(recievedPacket);	//Receive the response
 
-					
-					long startTime = System.nanoTime();
-					if((new String(recievedPacket.getData()).trim().equals("stop"))) {//If the response is not null, ie. a actual response
-						Thread.sleep(4500);
-						stop=true;	//Break out of loop
-					}
-					Thread.sleep(4500);
 					//determine start time
+					startTime = System.nanoTime();
+					if((new String(recievedPacket.getData()).trim().equals("stop"))) {//If the response is not null, ie. a actual response
+						Thread.sleep(9500);
+						a=-0.3;
+					}
+					if (a==-0.3 && Math.abs(currentFloor-destFloor)==1){
+						Thread.sleep(5186); //(4 - 1/2*a*timeToReachMaxSpeed) / MAX_VELOCITY 
+						stop=true; //break out of the loop because the elevator is arriving at the destination floor
+					}else if (currentVelocity >= MAX_VELOCITY) {
+						a = 0;
+					}
+
+					timeToNextFloor = (int) (4 / MAX_VELOCITY * 1000);
+					Thread.sleep(timeToNextFloor);
+					
 					if (error == 2) {
 						Thread.sleep(5000);
 					}
-					long endTime = System.nanoTime();
-					long elapsedTime = (endTime - startTime)/1000000;
+					endTime = System.nanoTime();
+					elapsedTime = (endTime - startTime)/1000000;
 					if (elapsedTime > 9000) {
 						stop=true;
 					}
 					if (up) {
 						currentFloor++;
-						
 						System.out.println("Elevator "+ this.id +": arriving at floor " + currentFloor);
 					}
 					else if(!up) {
