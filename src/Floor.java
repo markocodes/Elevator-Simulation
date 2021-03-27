@@ -35,11 +35,7 @@ public class Floor implements Runnable {
 	 * accessed by the Scheduler thread.
 	 */
 	public void run() {
-<<<<<<< HEAD
-		 ArrayList<PersonRequest> dataLines = readFile();
-=======
 		ArrayList<PersonRequest> dataLines = readFile();
->>>>>>> branch 'master' of https://github.com/markocodes/SYSC3303_Project
 		try {
 			int numberOfSuccessfulPackets = 0;
 			DatagramSocket socket = new DatagramSocket(port); // Creates a new socket. This will be used for sending and recieving packets
