@@ -1,5 +1,6 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
@@ -75,4 +76,35 @@ class ElevatorTest {
         }
 
     }
+    @Test
+     /**
+     * Test that elevators quadratic formula works properly.
+     * @param <quadratic>
+     */
+    void quadraticTest() {
+    	
+    	Elevator roots = new Elevator(0, 0, 0 );
+    	
+    	assertEquals(-1, roots.quadratic(1,2,1)); 
+    }
+    @Test
+    /**
+    * Test that elevators errors work properly.
+    *
+    */
+    void ElevatorErrorTest() {
+    	Elevator error = new Elevator(0, 0, 0);
+    	//assert
+    }
+    @Test
+    /**
+    * Test that elevators doors are open and working properly, before starting
+    *
+    */
+    void CurrentStateTest() {
+    	Elevator state = new Elevator(0, 0, 0);
+    	assertEquals(Elevator.State.DOOROPEN,state.getCurrentState());
+    	
+    }
+    
 }
