@@ -1,5 +1,7 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
@@ -30,11 +32,26 @@ class ElevatorTest {
         Elevator elevator3 = new Elevator(1,26,3);
         Elevator elevator4 = new Elevator(1,27,4);
 
-        assertEquals(elevator1.getPort(), 24);
-        assertEquals(elevator2.getPort(), 25);
-        assertEquals(elevator3.getPort(), 26);
-        assertEquals(elevator4.getPort(), 27);
+        assertEquals(24,elevator1.getPort());
+        assertEquals(25,elevator2.getPort());
+        assertEquals(26, elevator3.getPort());
+        assertEquals(27,elevator4.getPort());
     }
+
+    @Test
+    void parseConfigTest() throws FileNotFoundException {
+        assertEquals(4, Elevator.parseConfig());
+    }
+
+    @Test
+    void quadraticTest(){
+        Elevator elevator = new Elevator(1, 24, 1);
+        assertEquals(-3.0, elevator.quadratic(-1, -5, -6));
+        assertEquals(-2.0, elevator.quadratic(0.5, 2, 2));
+        assertEquals(-0.0, elevator.quadratic(2, 0, 0));
+    }
+
+
 
     @Test
     /**
