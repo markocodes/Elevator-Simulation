@@ -422,6 +422,27 @@ public class Scheduler implements Runnable {
 
         return nextLine;
     }
+    
+    /**
+     * timeParse converts a float array to a printable string time
+     * 
+     * @param arr is a float array containing the time to be converted 
+     * @return String printable time
+     */
+    private String timeParse(float[] arr) {
+    	StringBuilder printObject = new StringBuilder();
+    	float[] time = arr;
+    	for (float elem : time) {
+    		if (!(elem == time[time.length - 1])) {
+    			printObject.append(String.valueOf((int) elem));
+    			printObject.append(":");
+    		} else {
+    			printObject.append(String.valueOf((int) elem));
+    		}
+    	}
+    	return printObject.toString();
+    }
+    
 
     public static void main(String[] args) {
         Thread scheduler_thread1, scheduler_thread2;

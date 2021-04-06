@@ -19,8 +19,7 @@ public class Floor implements Runnable {
     private ArrayList<DatagramPacket> responses;
     private int floor;
     private int port;
-    private float[] systemStartTime;
-
+    private float[] currentTime;
 
     /**
      * The Floor constructor initializes an instance of Floor and all fields.
@@ -37,16 +36,21 @@ public class Floor implements Runnable {
      */
     public void run() {
         ArrayList<PersonRequest> dataLines = readFile();
-        dataLines = sortRequests(dataLines);
         try {
             int numberOfSuccessfulPackets = 0;
-            long int timeToSleep_ms = 0;
+            double timeToSleep_ms = 0;
             DatagramSocket socket = new DatagramSocket(port); // Creates a new socket. This will be used for sending and recieving packets
             InetAddress local = InetAddress.getLocalHost(); // Gets the local address of the computer
             
             for (PersonRequest request : dataLines) {
-            	timeToSleep_ms = dataLines;
-            	Thread.sleep();
+            	timeToSleep_ms = (request.getTime()[0] - currentTime[0])*60*60*1000 + (request.getTime()[1] - currentTime[1])*60*1000 + (request.getTime()[2] - currentTime[2])*1000;
+            	System.out.println(Thread.currentThread().getName() + "WAIT FOR TIME(ms): " + timeToSleep_ms);
+            	try {
+					Thread.sleep((int)timeToSleep_ms);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+            	this.currentTime = request.getTime(); 
                 byte[] dataArray = generateByteArray(request);
                 DatagramPacket packetToSend = new DatagramPacket(dataArray, dataArray.length, local, 23); // Creates a packet from the dataArray, to be sent to the intermediate host.
                 DatagramPacket replyPacket = new DatagramPacket(new byte[21], 21); // Creates a packet to recieve the acknowledgement in.
@@ -82,7 +86,27 @@ public class Floor implements Runnable {
      * @param systemStartTime is the float array representing the intial start time of the elevator system
      */
     private void setSystemStartTime(float[] systemStartTime) {
-    	this.systemStartTime = systemStartTime;
+    	this.currentTime = systemStartTime;
+    }
+    
+    /**
+     * timeParse converts a float array to a printable string time
+     * 
+     * @param arr is a float array containing the time to be converted 
+     * @return String printable time
+     */
+    private String timeParse(float[] arr) {
+    	StringBuilder printObject = new StringBuilder();
+    	float[] time = arr;
+    	for (float elem : time) {
+    		if (!(elem == time[time.length - 1])) {
+    			printObject.append(String.valueOf((int) elem));
+    			printObject.append(":");
+    		} else {
+    			printObject.append(String.valueOf((int) elem));
+    		}
+    	}
+    	return printObject.toString();
     }
     
     /**
