@@ -7,7 +7,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
-
 /**
  * Implements the floor class which represents the floors of the system.
  *
@@ -20,7 +19,7 @@ public class Floor implements Runnable {
     private ArrayList<DatagramPacket> responses;
     private int floor;
     private int port;
-
+    private float[] currentTime;
 
     /**
      * The Floor constructor initializes an instance of Floor and all fields.
@@ -39,10 +38,18 @@ public class Floor implements Runnable {
         ArrayList<PersonRequest> dataLines = readFile();
         try {
             int numberOfSuccessfulPackets = 0;
+            double timeToSleep_ms = 0;
             DatagramSocket socket = new DatagramSocket(port); // Creates a new socket. This will be used for sending and recieving packets
             InetAddress local = InetAddress.getLocalHost(); // Gets the local address of the computer
-
+            
             for (PersonRequest request : dataLines) {
+            	timeToSleep_ms = (request.getTime()[0] - currentTime[0])*60*60*1000 + (request.getTime()[1] - currentTime[1])*60*1000 + (request.getTime()[2] - currentTime[2])*1000;
+            	try {
+					Thread.sleep((int)timeToSleep_ms);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+            	this.currentTime = request.getTime(); 
                 byte[] dataArray = generateByteArray(request);
                 DatagramPacket packetToSend = new DatagramPacket(dataArray, dataArray.length, local, 23); // Creates a packet from the dataArray, to be sent to the intermediate host.
                 DatagramPacket replyPacket = new DatagramPacket(new byte[21], 21); // Creates a packet to recieve the acknowledgement in.
@@ -71,6 +78,66 @@ public class Floor implements Runnable {
     }
 
     /**
+     * setSystemStartTime determines the time of the first request to be sent from the input file.
+     * This start time will be used to simulate the actual "start time" of the system.
+     * i.e. the first request will be sent immediately, and all subsequent requests will be sent at a time relative to the first one.
+     * 
+     * @param systemStartTime is the float array representing the intial start time of the elevator system
+     */
+    private void setSystemStartTime(float[] systemStartTime) {
+    	this.currentTime = systemStartTime;
+    }
+    
+    /**
+     * timeParse converts a float array to a printable string time
+     * 
+     * @param arr is a float array containing the time to be converted 
+     * @return String printable time
+     */
+    private String timeParse(float[] arr) {
+    	StringBuilder printObject = new StringBuilder();
+    	float[] time = arr;
+    	for (float elem : time) {
+    		if (!(elem == time[time.length - 1])) {
+    			printObject.append(String.valueOf((int) elem));
+    			printObject.append(":");
+    		} else {
+    			printObject.append(String.valueOf((int) elem));
+    		}
+    	}
+    	return printObject.toString();
+    }
+    
+    /**
+     * compareTime compares two times and returns the one that comes first.
+     * 
+     * @param time1, time2 two float arrays to compare
+     * @return earliestTime a float array
+     */
+    private float[] compareTime(float[] time1, float[] time2) {
+    	if (time1 == null) {
+    		return time2;
+    	} if (time2 == null) {
+    		return time1;
+    	}else if (time1[0] > time2[0]) {
+    		return time1;
+    	} else if (time2[0] < time1[0]) {
+    		return time2;
+    	} else if (time1[1] < time2[1]) {
+    		return time1;
+    	} else if (time2[1] < time1[1]) {
+    		return time2;
+    	} else if (time1[2] < time2[2]) {
+    		return time1;
+    	} else if (time2[2] < time1[2]) {
+    		return time2;
+    	} else {
+    		//Times are equal
+    		return time1;
+    	}
+    }
+    
+    /**
      * Parses a text file and creates an ArrayList of PersonRequest objects
      *
      * @return and ArrayList of PersonRequest objects
@@ -80,14 +147,16 @@ public class Floor implements Runnable {
         try {
             File file = new File("testInput1.txt");
             Scanner scanner = new Scanner(file);
+            float[] firstRequest = null;
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
-
-                PersonRequest ah = parseLine(line);
-                if (ah.getFloor() == floor) {
-                    dataLines.add(ah);
+                PersonRequest request = parseLine(line);
+                firstRequest = compareTime(firstRequest,request.getTime());
+                if (request.getFloor() == floor) {
+                    dataLines.add(request);
                 }
             }
+            setSystemStartTime(firstRequest);
             scanner.close();
         } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");

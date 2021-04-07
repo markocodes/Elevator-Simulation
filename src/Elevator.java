@@ -53,9 +53,10 @@ public class Elevator implements Runnable {
 
         try {
             DatagramSocket socket = new DatagramSocket(port);    //Creates socket bound to each elevators port
-
+            long loadStart = 0;
             while (true) {
                 if (currentState == State.DOOROPEN) {
+                	loadStart = System.nanoTime();
                     Thread.sleep(4750);
                     System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Doors are open");
                     elevatorInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Doors are open");
@@ -107,7 +108,9 @@ public class Elevator implements Runnable {
                         error = 0;
                     }
                     long endTime = System.nanoTime();
+                    long loadEnd = System.nanoTime();
                     long elapsedTime = (endTime - startTime) / 1000000;
+                    long loadTime = (loadEnd - loadStart) / 1000000;
                     if (elapsedTime > 9000) {
                         System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Doors are blocked (Transient Error)!");
                         elevatorInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Doors are blocked (Transient Error)!");
@@ -116,16 +119,18 @@ public class Elevator implements Runnable {
                         elevatorInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Doors are closing again");
                     } else {
                         System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Doors are closed ");
+                        System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + " Loading/Unloading Time: " + loadTime + " ms");
                         elevatorInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Doors are closed ");
                         currentState = State.MOVING;
                         System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Moving");
                         elevatorInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Moving");
                     }
-
+                    
                 }
                 if (currentState == State.MOVING) {
                     boolean stop = false;
                     boolean firstLoop = true;
+                    long elapsedTime = 0;
                     while (!stop) {
                         int destFloor = currentFloor;
                         String help = "Help";
@@ -151,6 +156,9 @@ public class Elevator implements Runnable {
                             } else {
                                 Thread.sleep(5186);
                             }
+                            long endTime = System.nanoTime();
+                            elapsedTime = (endTime - startTime) / 1000000;
+                            System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Reached floor destination floor after: " +  elapsedTime + " ms");
                             stop = true;
                             break;
                         }
@@ -171,10 +179,11 @@ public class Elevator implements Runnable {
                             elevatorInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Arrival sensor triggered - arriving at floor " + currentFloor + " next");
                         }
                         long endTime = System.nanoTime();
-                        long elapsedTime = (endTime - startTime) / 1000000;
+                        elapsedTime = (endTime - startTime) / 1000000;
                         if (elapsedTime > 9000) {
                             stop = true;
                         }
+                        System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + " passing floor " + currentFloor + " after " + elapsedTime + " ms");
                         firstLoop = false;
                     }
 
