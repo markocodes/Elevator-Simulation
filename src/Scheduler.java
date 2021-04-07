@@ -40,6 +40,7 @@ public class Scheduler implements Runnable {
 	private static int elevatorError[] = { 0, 0, 0, 0 };
 	private static int elevatorStuck[] = { 0, 0, 0, 0 };
 	private static boolean started = false;
+	private static boolean ended = false;
 	private static long startTime = 0;
 	private static long endTime = 0;
 
@@ -72,8 +73,7 @@ public class Scheduler implements Runnable {
 		try {
 			receiveSocket = new DatagramSocket(portNumber);// Initialize a Datagram socket
 			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss.SS");
-			System.out
-					.println(java.time.LocalTime.now().format(dtf) + " " + name + " is running on port: " + portNumber);
+			System.out.println(java.time.LocalTime.now().format(dtf) + " " + name + " is running on port: " + portNumber);
 		} catch (SocketException se) {
 			// The program exits if socket creation failed
 			se.printStackTrace();
@@ -83,7 +83,6 @@ public class Scheduler implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.println(floors.get(0).isEmpty());
 		if (currentState == State.WAIT_FOR_FLOOR_REQUEST) {
 			floorToElevatorFSM();
 		} else if (currentState == State.WAIT_FOR_ELEVATOR_COMPLETION) {
@@ -107,16 +106,16 @@ public class Scheduler implements Runnable {
 					// get requests from the floor
 					receivedPacket = new DatagramPacket(new byte[18], 18);
 					receiveSocket.receive(receivedPacket);// Receive a packet
-					printPacket(receivedPacket, false);
+					// printPacket(receivedPacket, false);
 					if (new String(receivedPacket.getData()).trim().equals("request")) { // If the receivedPacket was a
 						// request
 						if (queue.isEmpty()) { // If there are no packets to forward
 							ackPacket = new DatagramPacket(negAck, negAck.length, local, receivedPacket.getPort());
-							printPacket(ackPacket, true);
+							// printPacket(ackPacket, true);
 							receiveSocket.send(ackPacket);// acknowledge that packet
 						} else {
 							System.out.println(Thread.currentThread().getName() + ": Request Receieved");
-							printPacket(queue.peek(), true);
+							// printPacket(queue.peek(), true);
 							receiveSocket.send(queue.remove()); // Send the first packet waiting
 						}
 					} else { // if the receivedPacket was not a request, it must have been data
@@ -127,22 +126,22 @@ public class Scheduler implements Runnable {
 						// Add another request to the list of floor that need to be assigned to
 						// elevators
 						unscheduledFloors.add(parseLine((new String(receivedPacket.getData()))));
-						started = true;
-						startTime = System.nanoTime();
+						if(!started) {
+							started = true;
+							startTime = System.nanoTime();
+						}
 					}
 					if (unscheduledFloors.isEmpty()) {
 						continue;
 					}
-					System.out.println("Request obtained by Scheduler Thread");
+					//System.out.println("Request obtained by Scheduler Thread!" );
 					currentState = State.SCHEDULING;
 				} else if (currentState == State.SCHEDULING) {
 					// Determine the optimal sequence of floors to visit
-					System.out.println("unscheduledFloors " + unscheduledFloors);
 					String direction = "NA";
 					int currentFloor, destinationFloor, elevError;
 					// Find an elevator that is available to handle the new request (and all other
 					// unscheduled requests)
-					// System.out.println("Right here beforeeeee");
 					ArrayList<PersonRequest> scheduledElements = new ArrayList<>();
 					for (PersonRequest request : unscheduledFloors) {
 						System.out.println(request.toString());
@@ -154,17 +153,14 @@ public class Scheduler implements Runnable {
 						} else {
 							direction = "Down";
 						}
-						// System.out.println("Right here;");
 						for (int i = 0; i < numElevators; i++) {
-							System.out.println("here");
 							if (elevatorStuck[i] != 1) {
 								if (elevatorDirection.get(i).equals("NA")) {
-									// System.out.println("NAAA ");
 									// add the request to this elevator
 									floors.get(i).add(currentFloor);
 									floors.get(i).add(destinationFloor);
 									elevatorError[i] = elevError;
-									System.out.println(floors);
+									//System.out.println(floors);
 									elevatorDirection.set(i, direction);
 									scheduledElements.add(request);
 									break;
@@ -173,7 +169,6 @@ public class Scheduler implements Runnable {
 									if (elevatorDirection.get(i).equals("Up")) {
 										// Now check if the elevator has already passed the currentFloor
 										if (currentFloor > currentFloors[i]) {
-											//System.out.println("N 2 ");
 											if (!floors.get(i).contains(currentFloor)) {
 												floors.get(i).add(currentFloor);
 											}
@@ -188,7 +183,6 @@ public class Scheduler implements Runnable {
 										}
 									} else if (elevatorDirection.get(i).equals("Down")) {
 										// Now check if the elevator has already passed the currentFloor
-										//System.out.println("N 3 ");
 										if (currentFloor < currentFloors[i]) {
 											floors.get(i).add(currentFloor);
 											floors.get(i).add(destinationFloor);
@@ -201,7 +195,6 @@ public class Scheduler implements Runnable {
 									}
 								}
 							}
-							// no elevator is available to handle the request
 						}
 					}
 					for (PersonRequest request : scheduledElements) {
@@ -236,30 +229,7 @@ public class Scheduler implements Runnable {
 			while (true) {
 				int whichQueue = 0;
 				if (currentState == State.WAIT_FOR_ELEVATOR_COMPLETION) {
-					/**if (started) {
-						boolean floorsEmpty = true;
-						boolean progressEmpty = true;
-						if (unscheduledFloors.isEmpty()) {
-							for (ArrayList<Integer> list : floors) {
-								if (!list.isEmpty()) {
-									floorsEmpty = false;
-									break;
-								}
-							}
-							if (floorsEmpty) {
-								for (ArrayList<Integer> list : floorsInProgress) {
-									if (!list.isEmpty());
-									progressEmpty = false;
-									break;
-								}
-								if (progressEmpty) {
-									endTime = System.nanoTime();
-									long timeElapsed = ((endTime - startTime)/1000000000); // in seconds
-									System.out.println("Time to complete Input file" + timeElapsed);
-								}
-							}
-						}
-					}*/
+
 					// get response from elevator
 
 					// if response is a request return data then send message to the floor -->
@@ -270,7 +240,7 @@ public class Scheduler implements Runnable {
 					receivedResponsePacket = new DatagramPacket(new byte[17], 17);
 					receiveSocket.receive(receivedResponsePacket);// Receive a packet
 					// printPacket(receivedResponsePacket, false);
-					printPacket(receivedResponsePacket, false);
+					// printPacket(receivedResponsePacket, false);
 					if (new String(receivedResponsePacket.getData()).trim().equals("request")) {
 						if (receivedResponsePacket.getPort() == 24) {
 							whichQueue = 0;
@@ -286,7 +256,7 @@ public class Scheduler implements Runnable {
 							elevatorDirection.set(whichQueue, "NA");
 							ackPacket = new DatagramPacket(negAck, negAck.length, local,
 									receivedResponsePacket.getPort());
-							printPacket(ackPacket, true);
+							// printPacket(ackPacket, true);
 							receiveSocket.send(ackPacket);// acknowledge that packet
 						} else {
 							StringBuilder stringReq = new StringBuilder();
@@ -317,7 +287,7 @@ public class Scheduler implements Runnable {
 								receivedResponsePacket.getPort());
 						printPacket(ackPacket, true);
 						receiveSocket.send(ackPacket);// acknowledge that packet
-						System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + whichQueue
+						System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + (whichQueue + 1)
 								+ " is broken send help");
 						floors.get(whichQueue).clear();
 					} else if (new String(receivedResponsePacket.getData()).trim().equals("fixed")) {
@@ -330,12 +300,13 @@ public class Scheduler implements Runnable {
 						} else if (receivedResponsePacket.getPort() == 27) {
 							whichQueue = 3;
 						}
+						floorsInProgress.get(whichQueue).clear();
 						elevatorStuck[whichQueue] = 0;
 						ackPacket = new DatagramPacket(ackData, ackData.length, local,
 								receivedResponsePacket.getPort());
 						printPacket(ackPacket, true);
 						receiveSocket.send(ackPacket);// acknowledge that packet
-						System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + whichQueue
+						System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + (whichQueue + 1)
 								+ " is fixed, can send requests again");
 					} else {// if the receivedResponsePacket was not a request, it must have been data
 						if (receivedResponsePacket.getPort() == 24) {
@@ -358,6 +329,7 @@ public class Scheduler implements Runnable {
 							ackData = "stop".getBytes();
 							floorsInProgress.get(whichQueue)
 									.remove(floorsInProgress.get(whichQueue).indexOf(floorSensor));
+						System.out.println(floorsInProgress);
 						} else {
 							ackData = "no".getBytes();
 						}
@@ -367,13 +339,43 @@ public class Scheduler implements Runnable {
 						receiveSocket.send(ackPacket);// acknowledge that packet
 						queue.add(receivedResponsePacket); // Enqueue the packet
 						currentFloors[whichQueue] = floorSensor;
-						System.out.println(
-								java.time.LocalTime.now().format(dtf) + " Requests obtained by Scheduler Thread!");
+						System.out.println(java.time.LocalTime.now().format(dtf) + " Requests obtained by Scheduler Thread!");
+					}
+					if (!ended) {
+						if (started) {
+							boolean floorsEmpty = true;
+							boolean progressEmpty = true;
+							if (unscheduledFloors.isEmpty()) {
+								for (ArrayList<Integer> list : floors) {
+									if (!list.isEmpty()) {
+										floorsEmpty = false;
+										break;
+									}
+								}
+								if (floorsEmpty) {
+									for (ArrayList<Integer> list : floorsInProgress) {
+										if (!list.isEmpty()) {
+											progressEmpty = false;
+											break;
+										}
+									}
+									if (progressEmpty) {
+										endTime = System.nanoTime();
+										float timeElapsed = ((float)(endTime - startTime) / 1000000000); // in seconds
+										System.out.println("\n########################################");
+										System.out.println("\nTime to complete input file: " + String.format("%.2f",timeElapsed) + " seconds");
+										System.out.println("\n########################################");
+										ended = true;
+									}
+								}
+							}
+						}
 					}
 					currentState = State.SENDING_REQUEST_TO_FLOOR;
 				} else if (currentState == State.SENDING_REQUEST_TO_FLOOR) {
 					// Send response to floor
-					System.out.println(java.time.LocalTime.now().format(dtf) + " Requests put by Scheduler Thread!");
+					// System.out.println(java.time.LocalTime.now().format(dtf) + " Requests put by
+					// Scheduler Thread!");
 					currentState = State.WAIT_FOR_ELEVATOR_COMPLETION;
 				}
 
@@ -395,15 +397,8 @@ public class Scheduler implements Runnable {
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss.SS");
 		if (!sending) { // If the packet was received
 			System.out.println(java.time.LocalTime.now().format(dtf) + " " + Thread.currentThread().getName()
-					+ " : Received the following packet (String): " + new String(packet.getData())); // Print data as
-																										// string
-																										// (Binary
-																										// values will
-																										// not appear
-																										// correctly in
-			// the string,
-			System.out.println("  Recived the following packet (Bytes): "); // but this is what the assignment said to
-																			// do)
+					+ " : Received the following packet (String): " + new String(packet.getData())); 
+			System.out.println("  Recived the following packet (Bytes): "); 
 			for (int z = 0; z < packet.getData().length - 1; z++) { // Prints the byte array one index at a time
 				System.out.print(packet.getData()[z] + ", ");
 			}
@@ -412,17 +407,8 @@ public class Scheduler implements Runnable {
 			System.out.println(""); // Adds a newline between packet sending and receiving
 		} else { // The packet is being sent
 			System.out.println(Thread.currentThread().getName() + ": Sending the following packet (String): "
-					+ new String(packet.getData()));// Print data as string (Binary values will not appear correctly in
-			// the string,
-			System.out.println(java.time.LocalTime.now().format(dtf) + "  Sending the following packet (Bytes): "); // but
-																													// this
-																													// is
-																													// what
-																													// the
-																													// assignment
-																													// said
-																													// to
-																													// do)
+					+ new String(packet.getData()));// Print data as string (Binary values will not appear correctly in the string,
+			System.out.println(java.time.LocalTime.now().format(dtf) + "  Sending the following packet (Bytes): ");
 			for (int z = 0; z < packet.getData().length - 1; z++) { // Prints the byte array one index at a time
 				System.out.print(packet.getData()[z] + ", ");
 			}

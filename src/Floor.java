@@ -44,7 +44,6 @@ public class Floor implements Runnable {
             
             for (PersonRequest request : dataLines) {
             	timeToSleep_ms = (request.getTime()[0] - currentTime[0])*60*60*1000 + (request.getTime()[1] - currentTime[1])*60*1000 + (request.getTime()[2] - currentTime[2])*1000;
-            	System.out.println(Thread.currentThread().getName() + "WAIT FOR TIME(ms): " + timeToSleep_ms);
             	try {
 					Thread.sleep((int)timeToSleep_ms);
 				} catch (InterruptedException e) {
@@ -157,7 +156,6 @@ public class Floor implements Runnable {
                     dataLines.add(request);
                 }
             }
-            System.out.println("FIRSSSSSSSSSSSSSSSTTTT:   " + firstRequest[0] + " " + firstRequest[1] + " " + firstRequest[2] + " ");
             setSystemStartTime(firstRequest);
             scanner.close();
         } catch (FileNotFoundException e) {
