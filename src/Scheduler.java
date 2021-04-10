@@ -43,6 +43,7 @@ public class Scheduler implements Runnable {
 	private static boolean ended = false;
 	private static long startTime = 0;
 	private static long endTime = 0;
+	private static float timeElapsed = 0;
 
 	/**
 	 * The Floor constructor initializes an instance of Scheduler and initializes
@@ -361,7 +362,7 @@ public class Scheduler implements Runnable {
 									}
 									if (progressEmpty) {
 										endTime = System.nanoTime();
-										float timeElapsed = ((float)(endTime - startTime) / 1000000000); // in seconds
+										timeElapsed = ((float)(endTime - startTime) / 1000000000); // in seconds
 										System.out.println("\n########################################");
 										System.out.println("\nTime to complete input file: " + String.format("%.2f",timeElapsed) + " seconds");
 										System.out.println("\n########################################");
