@@ -1,3 +1,5 @@
+
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -44,12 +46,14 @@ public class Scheduler implements Runnable {
 	private static long startTime = 0;
 	private static long endTime = 0;
 	private static float timeElapsed = 0;
+	private FloorInterface floorInterface;
+
 
 	/**
 	 * The Floor constructor initializes an instance of Scheduler and initializes
 	 * necessary fields.
 	 */
-	public Scheduler(int portNumber, String name) {
+	public Scheduler(int portNumber, String name, FloorInterface floorInterface) {
 		queue = new LinkedList<>();
 		floors.add(new ArrayList<>());
 		floors.add(new ArrayList<>());
@@ -64,6 +68,7 @@ public class Scheduler implements Runnable {
 		elevatorDirection.add("NA");
 		elevatorDirection.add("NA");
 		numElevators = 4;
+		this.floorInterface = floorInterface;
 
 		if (portNumber == 23) {
 			currentState = State.WAIT_FOR_FLOOR_REQUEST;
@@ -127,6 +132,8 @@ public class Scheduler implements Runnable {
 						// Add another request to the list of floor that need to be assigned to
 						// elevators
 						unscheduledFloors.add(parseLine((new String(receivedPacket.getData()))));
+						parseLine((new String(receivedPacket.getData())));
+						floorInterface.addLamps(parseLine((new String(receivedPacket.getData()))));
 						if(!started) {
 							started = true;
 							startTime = System.nanoTime();
@@ -262,7 +269,10 @@ public class Scheduler implements Runnable {
 						} else {
 							StringBuilder stringReq = new StringBuilder();
 							System.out.println(Thread.currentThread().getName() + ": Request Receieved");
+							//int tempFloor2 = floors.get(whichQueue).get(0);
+							//floorInterface.addLamps(tempFloor2);
 							floorsInProgress.get(whichQueue).add(floors.get(whichQueue).get(0));
+
 							stringReq.append(String.valueOf(floors.get(whichQueue).get(0)));
 							stringReq.append(" ").append(elevatorError[whichQueue]);
 							responsePacket = new DatagramPacket(stringReq.toString().getBytes(),
@@ -328,8 +338,20 @@ public class Scheduler implements Runnable {
 						System.out.println(java.time.LocalTime.now().format(dtf) + "  FloorSensor:  " + floorSensor);
 						if (floorsInProgress.get(whichQueue).contains(floorSensor)) {
 							ackData = "stop".getBytes();
-							floorsInProgress.get(whichQueue)
-									.remove(floorsInProgress.get(whichQueue).indexOf(floorSensor));
+
+							//int tempFloor = floorsInProgress.get(whichQueue).get(0);
+							//floorInterface.removeLamps(tempFloor);
+
+
+							floorsInProgress.get(whichQueue).remove(floorsInProgress.get(whichQueue).indexOf(floorSensor));
+
+
+							if(elevatorDirection.get(whichQueue).equals("Up")){
+								floorInterface.removeLamps(floorSensor, 1);
+							}else{
+								floorInterface.removeLamps(floorSensor, 0);
+							}
+
 						System.out.println(floorsInProgress);
 						} else {
 							ackData = "no".getBytes();
@@ -363,6 +385,10 @@ public class Scheduler implements Runnable {
 									if (progressEmpty) {
 										endTime = System.nanoTime();
 										timeElapsed = ((float)(endTime - startTime) / 1000000000); // in seconds
+										for(int i = 1; i <= 22; i++){
+											floorInterface.removeLamps(i, 1);
+											floorInterface.removeLamps(i, 0);
+										}
 										System.out.println("\n########################################");
 										System.out.println("\nTime to complete input file: " + String.format("%.2f",timeElapsed) + " seconds");
 										System.out.println("\n########################################");
@@ -487,10 +513,21 @@ public class Scheduler implements Runnable {
 		return printObject.toString();
 	}
 
+	public FloorInterface getFloorInterface() {
+		return floorInterface;
+	}
+
 	public static void main(String[] args) {
+		FloorView floorView = new FloorView();
+
+
 		Thread scheduler_thread1, scheduler_thread2;
-		scheduler_thread1 = new Thread(new Scheduler(23, "Scheduler Thread 1"), "Scheduler Thread 1");
-		scheduler_thread2 = new Thread(new Scheduler(22, "Scheduler Thread 2"), "Scheduler Thread 2");
+		Scheduler scheduler1 = new Scheduler(23, "Scheduler Thread 1", new FloorInterface());
+		Scheduler scheduler2 = new Scheduler(22, "Scheduler Thread 2", new FloorInterface());
+		scheduler1.getFloorInterface().addFloorView(floorView);
+		scheduler2.getFloorInterface().addFloorView(floorView);
+		scheduler_thread1 = new Thread(scheduler1, "Scheduler Thread 1");
+		scheduler_thread2 = new Thread(scheduler2, "Scheduler Thread 2");
 		System.out.println("\n");
 		scheduler_thread1.start();
 		scheduler_thread2.start();
