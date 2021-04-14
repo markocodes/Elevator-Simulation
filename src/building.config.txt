@@ -2,5 +2,5 @@ Elevator & Floor Configuration
 ******************************
 Specify the desired amount of floors and elevators below:
 
-Floors: 7
+Floors: 22
 Elevators: 4
