@@ -108,7 +108,7 @@ public class Scheduler implements Runnable {
 			while (true) {
 				if (currentState == State.WAIT_FOR_FLOOR_REQUEST) {
 					// get requests from the floor
-					receivedPacket = new DatagramPacket(new byte[18], 18);
+					receivedPacket = new DatagramPacket(new byte[21], 21);
 					receiveSocket.receive(receivedPacket);// Receive a packet
 					// printPacket(receivedPacket, false);
 					if (new String(receivedPacket.getData()).trim().equals("request")) { // If the receivedPacket was a
@@ -129,6 +129,7 @@ public class Scheduler implements Runnable {
 
 						// Add another request to the list of floor that need to be assigned to
 						// elevators
+						
 						unscheduledFloors.add(parseLine((new String(receivedPacket.getData()))));
 
 						if(floorInterface != null){
@@ -247,7 +248,7 @@ public class Scheduler implements Runnable {
 
 					// get requests from the elevator
 
-					receivedResponsePacket = new DatagramPacket(new byte[17], 17);
+					receivedResponsePacket = new DatagramPacket(new byte[21], 21);
 					receiveSocket.receive(receivedResponsePacket);// Receive a packet
 					// printPacket(receivedResponsePacket, false);
 					// printPacket(receivedResponsePacket, false);
@@ -375,27 +376,27 @@ public class Scheduler implements Runnable {
 							boolean floorsEmpty = true;
 							boolean progressEmpty = true;
 							if (unscheduledFloors.isEmpty()) {
-								System.out.println("HERE 3");
+								//System.out.println("HERE 3");
 								for (ArrayList<Integer> list : floors) {
 									if (!list.isEmpty()) {
-										System.out.println("HERE 5");
+										//System.out.println("HERE 5");
 										floorsEmpty = false;
 										break;
 									}
 								}
-								System.out.println("HERE 6");
+								//System.out.println("HERE 6");
 								if (floorsEmpty) {
-									System.out.println("HERE 7");
+									//System.out.println("HERE 7");
 									for (ArrayList<Integer> list : floorsInProgress) {
 										if (!list.isEmpty()) {
-											System.out.println("HERE 8");
+											//System.out.println("HERE 8");
 											progressEmpty = false;
 											break;
 										}
 									}
 
 									if (progressEmpty) {
-										System.out.println("HERE 9");
+										//System.out.println("HERE 9");
 										endTime = System.nanoTime();
 										timeElapsed = ((endTime - startTime) / 1000000); // in seconds
 										double tempTime = (double)timeElapsed;
@@ -403,13 +404,22 @@ public class Scheduler implements Runnable {
 										System.out.println("\nTime to complete input file: " + String.format("%.02f",tempTime/1000) + " seconds");
 										System.out.println("\n########################################");
 
-										if(floorInterface != null){
-											floorInterface.updateTotalTime(String.format("%.02f",tempTime/1000));
-											for(int i = 1; i <=22; i++){
-												floorInterface.removeLamps(i, 1);
-												floorInterface.removeLamps(i, 0);
-											}
+										//if(floorInterface != null){
+										String result = "Hello";
+										floorInterface.updateTotalTime(result);
+										try {
+											Thread.sleep(5000);
+										} catch (InterruptedException e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
 										}
+										result = String.format("%.02f",tempTime/1000);
+										floorInterface.updateTotalTime(result);
+										//	for(int i = 1; i <=22; i++){
+										//		floorInterface.removeLamps(i, 1);
+										//		floorInterface.removeLamps(i, 0);
+										//	}
+										//}
 
 										ended = true;
 
@@ -505,7 +515,6 @@ public class Scheduler implements Runnable {
 		// i.e. the floor that the passenger wants to go to
 		String carButton_string = elements[3];
 		int carButton = Integer.parseInt(carButton_string);
-
 		String error_String = elements[4].replaceAll("[^\\d.]", "");
 		int error = Integer.parseInt(error_String);
 

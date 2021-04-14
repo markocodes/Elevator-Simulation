@@ -62,7 +62,7 @@ public class Elevator implements Runnable {
                     }
                     byte[] requestByteArray = "request".getBytes();
                     boolean receieved = false; //defines a flag to check for receieving a actual packet vs a nothing to report packet ("null")
-                    DatagramPacket recievedPacket = new DatagramPacket(new byte[18], 18);    //Creates a packet to recieve into
+                    DatagramPacket recievedPacket = new DatagramPacket(new byte[21], 21);    //Creates a packet to recieve into
                     DatagramPacket requestPacket = new DatagramPacket(requestByteArray, requestByteArray.length, InetAddress.getLocalHost(), 22);
 
                     while (!receieved) {    //Loop until a non null packet is recieved
@@ -173,7 +173,7 @@ public class Elevator implements Runnable {
                     while (!stop) {
                         int destFloor = currentFloor;
                         String help = "Help";
-                        DatagramPacket recievedPacket = new DatagramPacket(new byte[17], 17);    //Creates a packet to recieve into
+                        DatagramPacket recievedPacket = new DatagramPacket(new byte[21], 21);    //Creates a packet to recieve into
                         if (error == 2) {
                             byte[] requestByteArray = String.valueOf(help).getBytes();
                             DatagramPacket requestPacket = new DatagramPacket(requestByteArray, requestByteArray.length, InetAddress.getLocalHost(), 22);
@@ -259,7 +259,7 @@ public class Elevator implements Runnable {
                         }
                         String fixed = "fixed";
                         byte[] requestByteArray = String.valueOf(fixed).getBytes();
-                        DatagramPacket recievedPacket = new DatagramPacket(new byte[17], 17);    //Creates a packet to recieve into
+                        DatagramPacket recievedPacket = new DatagramPacket(new byte[21], 21);    //Creates a packet to recieve into
                         DatagramPacket requestPacket = new DatagramPacket(requestByteArray, requestByteArray.length, InetAddress.getLocalHost(), 22);
                         //Loop until a non null packet is received
                         socket.send(requestPacket);    //Send a request to the intermediate server

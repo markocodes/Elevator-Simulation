@@ -58,29 +58,15 @@ public class Floor implements Runnable {
                 socket.receive(replyPacket); // Receive the ack from the intermediate host
                 printPacket(replyPacket, false);
                 boolean receieved = false; // defines a flag to check for receieving a actual packet vs a nothing to report packet ("null")
-                DatagramPacket receivedPacket = new DatagramPacket(new byte[20], 20); // Creates a new packet for receiving
+                DatagramPacket receivedPacket = new DatagramPacket(new byte[21], 21); // Creates a new packet for receiving
             }
             while(true){
                 byte[] dataArray = "request".getBytes();
                 DatagramPacket packetToSend = new DatagramPacket(dataArray, dataArray.length, local, 23);
                 socket.send(packetToSend);
-                receivedPacket = new DatagramPacket(new byte[17], 17);
+                receivedPacket = new DatagramPacket(new byte[21], 21);
                 socket.receive(receivedPacket);// Receive a packet
-                //printPacket(receivedPacket, false);
-                //socket.close();
             }
-            // get requests from the scheduler
-            //receivedPacket = new DatagramPacket(new byte[17], 17);
-            //socket.receive(receivedPacket);// Receive a packet
-            // System.out.println(receivedPacket.getData());
-            //printPacket(receivedPacket, false);
-            //responses.add(receivedPacket);
-
-            //byte[] ackData = "ack".getBytes();
-            //ackPacket = new DatagramPacket(ackData, ackData.length, local, receivedPacket.getPort());
-            //socket.send(ackPacket);// acknowledge that packet
-
-            //socket.close(); // Close the socket
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -187,8 +173,7 @@ public class Floor implements Runnable {
         // Split the line into an array of substrings
         // Each substring is parsed below
         String[] elements = line.split(" ");
-
-        // Parse the date substring into an array of floats {<hours>, <minutes>, <seconds>}
+        	// Parse the date substring into an array of floats {<hours>, <minutes>, <seconds>}
         String time_string = elements[0];
         String[] time_string_array = time_string.split(":");
         float[] time = new float[3];

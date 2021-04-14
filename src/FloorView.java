@@ -111,6 +111,9 @@ public class FloorView extends JFrame{
      */
     public void updateTotalTime(String time){
         totalTime.setText(time);
+        totalTime.update(totalTime.getGraphics());
+        //totalTime.revalidate();
+        //totalTime.repaint();
     }
 
     public static void main(String[] args) {

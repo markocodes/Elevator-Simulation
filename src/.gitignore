@@ -15,3 +15,7 @@
 /SchedulerTest.class
 /ElevatorInterface.class
 /ElevatorView.class
+/FloorInterface.class
+/FloorView.class
+/SchedulerInterface.class
+/SchedulerView.class

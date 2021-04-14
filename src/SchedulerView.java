@@ -330,7 +330,7 @@ public class SchedulerView extends JFrame {
     public ArrayList<String> readFile() {
         ArrayList<String> dataLines = new ArrayList<>();
         try {
-            File file = new File("src/input.txt");
+            File file = new File("input.txt");
             Scanner scanner = new Scanner(file);
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
