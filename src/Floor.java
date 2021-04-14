@@ -60,18 +60,27 @@ public class Floor implements Runnable {
                 boolean receieved = false; // defines a flag to check for receieving a actual packet vs a nothing to report packet ("null")
                 DatagramPacket receivedPacket = new DatagramPacket(new byte[20], 20); // Creates a new packet for receiving
             }
+            while(true){
+                byte[] dataArray = "request".getBytes();
+                DatagramPacket packetToSend = new DatagramPacket(dataArray, dataArray.length, local, 23);
+                socket.send(packetToSend);
+                receivedPacket = new DatagramPacket(new byte[17], 17);
+                socket.receive(receivedPacket);// Receive a packet
+                //printPacket(receivedPacket, false);
+                //socket.close();
+            }
             // get requests from the scheduler
-            receivedPacket = new DatagramPacket(new byte[17], 17);
-            socket.receive(receivedPacket);// Receive a packet
+            //receivedPacket = new DatagramPacket(new byte[17], 17);
+            //socket.receive(receivedPacket);// Receive a packet
             // System.out.println(receivedPacket.getData());
-            printPacket(receivedPacket, false);
-            responses.add(receivedPacket);
+            //printPacket(receivedPacket, false);
+            //responses.add(receivedPacket);
 
-            byte[] ackData = "ack".getBytes();
-            ackPacket = new DatagramPacket(ackData, ackData.length, local, receivedPacket.getPort());
-            socket.send(ackPacket);// acknowledge that packet
+            //byte[] ackData = "ack".getBytes();
+            //ackPacket = new DatagramPacket(ackData, ackData.length, local, receivedPacket.getPort());
+            //socket.send(ackPacket);// acknowledge that packet
 
-            socket.close(); // Close the socket
+            //socket.close(); // Close the socket
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -145,7 +154,7 @@ public class Floor implements Runnable {
     public ArrayList<PersonRequest> readFile() {
         ArrayList<PersonRequest> dataLines = new ArrayList<>();
         try {
-            File file = new File("testInput1.txt");
+            File file = new File("input.txt");
             Scanner scanner = new Scanner(file);
             float[] firstRequest = null;
             while (scanner.hasNextLine()) {

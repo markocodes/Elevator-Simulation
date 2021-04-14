@@ -44,12 +44,13 @@ public class Scheduler implements Runnable {
 	private static long startTime = 0;
 	private static long endTime = 0;
 	private static long timeElapsed;
+	private FloorInterface floorInterface;
 
 	/**
 	 * The Floor constructor initializes an instance of Scheduler and initializes
 	 * necessary fields.
 	 */
-	public Scheduler(int portNumber, String name) {
+	public Scheduler(int portNumber, String name, FloorInterface floorInterface) {
 		queue = new LinkedList<>();
 		floors.add(new ArrayList<>());
 		floors.add(new ArrayList<>());
@@ -64,6 +65,8 @@ public class Scheduler implements Runnable {
 		elevatorDirection.add("NA");
 		elevatorDirection.add("NA");
 		numElevators = 4;
+
+		this.floorInterface = floorInterface;
 
 		if (portNumber == 23) {
 			currentState = State.WAIT_FOR_FLOOR_REQUEST;
@@ -127,6 +130,12 @@ public class Scheduler implements Runnable {
 						// Add another request to the list of floor that need to be assigned to
 						// elevators
 						unscheduledFloors.add(parseLine((new String(receivedPacket.getData()))));
+
+						if(floorInterface != null){
+							floorInterface.addLamps(parseLine((new String(receivedPacket.getData()))));
+						}
+
+
 						if(!started) {
 							started = true;
 							startTime = System.nanoTime();
@@ -310,6 +319,9 @@ public class Scheduler implements Runnable {
 						System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + (whichQueue + 1)
 								+ " is fixed, can send requests again");
 					} else {// if the receivedResponsePacket was not a request, it must have been data
+
+
+
 						if (receivedResponsePacket.getPort() == 24) {
 							whichQueue = 0;
 						} else if (receivedResponsePacket.getPort() == 25) {
@@ -328,39 +340,62 @@ public class Scheduler implements Runnable {
 						System.out.println(java.time.LocalTime.now().format(dtf) + "  FloorSensor:  " + floorSensor);
 						if (floorsInProgress.get(whichQueue).contains(floorSensor)) {
 							ackData = "stop".getBytes();
-							floorsInProgress.get(whichQueue)
-									.remove(floorsInProgress.get(whichQueue).indexOf(floorSensor));
+							floorsInProgress.get(whichQueue).remove(floorsInProgress.get(whichQueue).indexOf(floorSensor));
 						System.out.println(floorsInProgress);
 						} else {
 							ackData = "no".getBytes();
 						}
+
+						System.out.println(floorsInProgress);
+						System.out.println(floors);
+						System.out.println(unscheduledFloors);
+
 						ackPacket = new DatagramPacket(ackData, ackData.length, local,
 								receivedResponsePacket.getPort());
 						printPacket(ackPacket, true);
 						receiveSocket.send(ackPacket);// acknowledge that packet
 						queue.add(receivedResponsePacket); // Enqueue the packet
 						currentFloors[whichQueue] = floorSensor;
+
+						if(floorInterface != null){
+							if(elevatorDirection.get(whichQueue).equals("Up")){
+								floorInterface.removeLamps(floorSensor, 1);
+							}
+							else{
+								floorInterface.removeLamps(floorSensor, 0);
+							}
+						}
+
 						System.out.println(java.time.LocalTime.now().format(dtf) + " Requests obtained by Scheduler Thread!");
 					}
 					if (!ended) {
+						//System.out.println("HERE 1");
 						if (started) {
+							//System.out.println("HERE 2");
 							boolean floorsEmpty = true;
 							boolean progressEmpty = true;
 							if (unscheduledFloors.isEmpty()) {
+								System.out.println("HERE 3");
 								for (ArrayList<Integer> list : floors) {
 									if (!list.isEmpty()) {
+										System.out.println("HERE 5");
 										floorsEmpty = false;
 										break;
 									}
 								}
+								System.out.println("HERE 6");
 								if (floorsEmpty) {
+									System.out.println("HERE 7");
 									for (ArrayList<Integer> list : floorsInProgress) {
 										if (!list.isEmpty()) {
+											System.out.println("HERE 8");
 											progressEmpty = false;
 											break;
 										}
 									}
+
 									if (progressEmpty) {
+										System.out.println("HERE 9");
 										endTime = System.nanoTime();
 										timeElapsed = ((endTime - startTime) / 1000000); // in seconds
 										double tempTime = (double)timeElapsed;
@@ -368,6 +403,14 @@ public class Scheduler implements Runnable {
 										System.out.println("\nTime to complete input file: " + String.format("%.02f",tempTime/1000) + " seconds");
 										System.out.println("\n########################################");
 										ended = true;
+
+										if(floorInterface != null){
+											floorInterface.updateTotalTime(String.format("%.02f",tempTime/1000));
+											for(int i = 1; i <=22; i++){
+												floorInterface.removeLamps(i, 1);
+												floorInterface.removeLamps(i, 0);
+											}
+										}
 									}
 								}
 							}
@@ -468,6 +511,10 @@ public class Scheduler implements Runnable {
 		return nextLine;
 	}
 
+	public FloorInterface getFloorInterface() {
+		return floorInterface;
+	}
+
 	/**
 	 * timeParse converts a float array to a printable string time
 	 * 
@@ -490,10 +537,20 @@ public class Scheduler implements Runnable {
 
 	public static void main(String[] args) {
 		Thread scheduler_thread1, scheduler_thread2;
-		scheduler_thread1 = new Thread(new Scheduler(23, "Scheduler Thread 1"), "Scheduler Thread 1");
-		scheduler_thread2 = new Thread(new Scheduler(22, "Scheduler Thread 2"), "Scheduler Thread 2");
+
+		FloorView floorView = new FloorView();
+
+		Scheduler scheduler1 = new Scheduler(23, "Scheduler Thread 1", new FloorInterface());
+		Scheduler scheduler2 = new Scheduler(22, "Scheduler Thread 2", new FloorInterface());
+
+		scheduler1.getFloorInterface().addFloorView(floorView);
+		scheduler2.getFloorInterface().addFloorView(floorView);
+
+		scheduler_thread1 = new Thread(scheduler1, "Scheduler Thread 1");
+		scheduler_thread2 = new Thread(scheduler2, "Scheduler Thread 2");
 		System.out.println("\n");
 		scheduler_thread1.start();
 		scheduler_thread2.start();
+
 	}
 }

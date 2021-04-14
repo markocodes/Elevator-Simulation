@@ -33,6 +33,8 @@ class ElevatorTest {
         assertEquals(25,elevator2.getPort());
         assertEquals(26, elevator3.getPort());
         assertEquals(27,elevator4.getPort());
+
+
     }
 
     @Test
@@ -72,6 +74,8 @@ class ElevatorTest {
         sendSocket.send(sendPacket);
         Thread.sleep(5000);
         assertEquals(2,elevator.getError());
+        sendSocket.close();
+        receiveSocket.close();
     }
 
     @Test
@@ -92,6 +96,8 @@ class ElevatorTest {
         sendSocket.send(sendPacket);
         Thread.sleep(2000);
         assertEquals(1,elevator.getError());
+        sendSocket.close();
+        receiveSocket.close();
     }
 
     @Test
@@ -112,5 +118,8 @@ class ElevatorTest {
         sendSocket.send(sendPacket);
         Thread.sleep(1000);
         assertEquals(0,elevator.getError());
+        sendSocket.close();
+        receiveSocket.close();
+
     }
 }
