@@ -3,13 +3,9 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class FloorView extends JFrame{
-    private ArrayList<JPanel> lampsUp;
-    private ArrayList<JPanel> lampsDown;
-    private ArrayList<JPanel> floorNums;
-    private JPanel lampUpPanel;
-    private JPanel lampDownPanel;
-    private JPanel floorNumsPanel;
-    private JTextField totalTime;
+    private final ArrayList<JPanel> lampsUp;
+    private final ArrayList<JPanel> lampsDown;
+    private final JTextField totalTime;
 
     public FloorView(){
         super("Floor Request Monitoring Panel");
@@ -21,21 +17,20 @@ public class FloorView extends JFrame{
         JPanel timePanel = new JPanel();
         listPanel.setLayout(new FlowLayout());
         timePanel.setLayout(new FlowLayout());
-        //timePanel.setMaximumSize(new Dimension(70,50));
+
 
         totalTime = new JTextField();
         totalTime.setEditable(false);
 
-        totalTime.setText("TEST");
 
         timePanel.add(totalTime);
 
         lampsUp = new ArrayList<>();
         lampsDown = new ArrayList<>();
-        floorNums = new ArrayList<>();
-        lampUpPanel = new JPanel();
-        lampDownPanel = new JPanel();
-        floorNumsPanel = new JPanel();
+        ArrayList<JPanel> floorNums = new ArrayList<>();
+        JPanel lampUpPanel = new JPanel();
+        JPanel lampDownPanel = new JPanel();
+        JPanel floorNumsPanel = new JPanel();
 
         lampUpPanel.setLayout(new BoxLayout(lampUpPanel, BoxLayout.Y_AXIS));
         lampDownPanel.setLayout(new BoxLayout(lampDownPanel, BoxLayout.Y_AXIS));
@@ -75,10 +70,10 @@ public class FloorView extends JFrame{
         listPanel.add(lampDownPanel);
 
 
-        this.add(new JLabel("Floor Lamp Monitoring System"));
+        this.add(new JLabel("FLOOR LAMP MONITORING SYSTEM"));
         this.add(listPanel);
         this.add(new JLabel(" "));
-        this.add(new JLabel("Total Execution Time"));
+        this.add(new JLabel("TOTAL EXECUTION TIME (Seconds): "));
         this.add(timePanel);
         this.setSize(500,1000);
         this.setVisible(true);
@@ -101,8 +96,8 @@ public class FloorView extends JFrame{
         }
     }
 
-    public void updateTotalTime(long time){
-        totalTime.setText(String.valueOf(time));
+    public void updateTotalTime(String time){
+        totalTime.setText(time);
     }
 
     public static void main(String[] args) {

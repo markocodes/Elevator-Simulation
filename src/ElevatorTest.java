@@ -33,6 +33,8 @@ class ElevatorTest {
         assertEquals(25,elevator2.getPort());
         assertEquals(26, elevator3.getPort());
         assertEquals(27,elevator4.getPort());
+
+
     }
 
     @Test

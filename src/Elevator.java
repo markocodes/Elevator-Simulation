@@ -57,7 +57,9 @@ public class Elevator implements Runnable {
                 	loadStart = System.nanoTime();
                     Thread.sleep(4750);
                     System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Doors are open");
-                    schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Doors are open");
+                    if(schedulerInterface != null) {
+                        schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Doors are open");
+                    }
                     byte[] requestByteArray = "request".getBytes();
                     boolean receieved = false; //defines a flag to check for receieving a actual packet vs a nothing to report packet ("null")
                     DatagramPacket recievedPacket = new DatagramPacket(new byte[18], 18);    //Creates a packet to recieve into
@@ -74,18 +76,26 @@ public class Elevator implements Runnable {
                     String tempDest = (new String(temp));
                     String tempArr[] = tempDest.split(" ");
                     int dest = Integer.parseInt(tempArr[0]);
-                    schedulerInterface.updateDestination(this.id, dest);
+                    if(schedulerInterface != null) {
+                        schedulerInterface.updateDestination(this.id, dest);
+                    }
                     error = Integer.parseInt(tempArr[1].replaceAll("[^\\d.]", ""));
                     if (currentFloor < dest) {
                         up = true;
-                        schedulerInterface.updateDirection(this.id,"Up");
+                        if(schedulerInterface != null) {
+                            schedulerInterface.updateDirection(this.id, "Up");
+                        }
                     } else if (currentFloor > dest) {
                         up = false;
-                        schedulerInterface.updateDirection(this.id,"Down");
+                        if(schedulerInterface != null) {
+                            schedulerInterface.updateDirection(this.id, "Down");
+                        }
                     }
 
                     System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Requests obtained by Elevator to floor " + dest);
-                    schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Requests obtained by Elevator to floor " + dest);
+                    if(schedulerInterface != null) {
+                        schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Requests obtained by Elevator to floor " + dest);
+                    }
 
                     if (response != currentFloor) {
                         destination.add(response);
@@ -93,11 +103,15 @@ public class Elevator implements Runnable {
 
                     }
                     currentState = State.DOORCLOSED;
-                    schedulerInterface.updateState(this.id,"Doors Closed");
+                    if(schedulerInterface != null) {
+                        schedulerInterface.updateState(this.id, "Doors Closed");
+                    }
 
 
                     System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Doors are closing ");
-                    schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Doors are closing ");
+                    if(schedulerInterface != null) {
+                        schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Doors are closing ");
+                    }
                 }
                 if (currentState == State.DOORCLOSED) {
                     long startTime = System.nanoTime();
@@ -107,7 +121,15 @@ public class Elevator implements Runnable {
                         e.printStackTrace();
                     }
                     if (error == 1) {
+                        if(schedulerInterface != null) {
+                            schedulerInterface.updateState(this.id, "DOOR JAM");
+                            schedulerInterface.addErrorState(this.id, currentFloor);
+                        }
                         Thread.sleep(5000);
+                        if(schedulerInterface != null) {
+                            schedulerInterface.updateState(this.id, "DOOR CLOSED");
+                            schedulerInterface.removeErrorState(this.id, currentFloor);
+                        }
                         error = 0;
                     }
                     long endTime = System.nanoTime();
@@ -116,19 +138,31 @@ public class Elevator implements Runnable {
                     long loadTime = (loadEnd - loadStart) / 1000000;
                     if (elapsedTime > 9000) {
                         System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Doors are blocked (Transient Error)!");
-                        schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Doors are blocked (Transient Error)!");
+                        if(schedulerInterface != null) {
+                            schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Doors are blocked (Transient Error)!");
+                        }
                         currentState = State.DOORCLOSED;
-                        schedulerInterface.updateState(this.id,"Doors Closed");
+                        if(schedulerInterface != null) {
+                            schedulerInterface.updateState(this.id, "Doors Closed");
+                        }
                         System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Doors are closing again");
-                        schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Doors are closing again");
+                        if(schedulerInterface != null) {
+                            schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Doors are closing again");
+                        }
                     } else {
                         System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Doors are closed ");
                         System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + " Loading/Unloading Time: " + loadTime + " ms");
-                        schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Doors are closed ");
+                        if(schedulerInterface != null) {
+                            schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Doors are closed ");
+                        }
                         currentState = State.MOVING;
-                        schedulerInterface.updateState(this.id,"Moving");
+                        if(schedulerInterface != null) {
+                            schedulerInterface.updateState(this.id, "Moving");
+                        }
                         System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Moving");
-                        schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Moving");
+                        if(schedulerInterface != null) {
+                            schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Moving");
+                        }
                     }
                     
                 }
@@ -163,7 +197,7 @@ public class Elevator implements Runnable {
                             }
                             long endTime = System.nanoTime();
                             elapsedTime = (endTime - startTime) / 1000000;
-                            schedulerInterface.updateDoorTime(elapsedTime);
+
                             System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Reached floor destination floor after: " +  elapsedTime + " ms");
                             stop = true;
                             break;
@@ -178,34 +212,51 @@ public class Elevator implements Runnable {
                             currentFloor++;
 
                             System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Arrival sensor triggered - arriving at floor " + currentFloor + " next");
-                            schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Arrival sensor triggered - arriving at floor " + currentFloor + " next");
-                            schedulerInterface.floorChange(this.id, currentFloor);
+                            if(schedulerInterface != null) {
+                                schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Arrival sensor triggered - arriving at floor " + currentFloor + " next");
+                                schedulerInterface.floorChange(this.id, currentFloor);
+                            }
                         } else if (!up) {
                             currentFloor--;
                             System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Arrival sensor triggered - arriving at floor " + currentFloor + " next");
-                            schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Arrival sensor triggered - arriving at floor " + currentFloor + " next");
-                            schedulerInterface.floorChange(this.id, currentFloor);
+                            if(schedulerInterface != null) {
+                                schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Arrival sensor triggered - arriving at floor " + currentFloor + " next");
+                                schedulerInterface.floorChange(this.id, currentFloor);
+                            }
                         }
                         long endTime = System.nanoTime();
                         elapsedTime = (endTime - startTime) / 1000000;
                         if (elapsedTime > 9000) {
                             stop = true;
                         }
-                        schedulerInterface.updateDoorTime(elapsedTime);
                         System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + " passing floor " + currentFloor + " after " + elapsedTime + " ms");
                         firstLoop = false;
                     }
 
                     currentState = State.STOPPED;
-                    schedulerInterface.updateState(this.id,"Stopped");
+                    if(schedulerInterface != null) {
+                        schedulerInterface.updateState(this.id, "Stopped");
+                    }
                     System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Stopped");
-                    schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Stopped");
+                    if(schedulerInterface != null) {
+                        schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Stopped");
+                    }
                 }
                 if (currentState == State.STOPPED) {
                     if (error == 2) {
                         System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Stuck (Permanent Error)!.");
-                        schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Stuck (Permanent Error)!.");
+                        if(schedulerInterface != null) {
+                            schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": Stuck (Permanent Error)!.");
+                        }
+                        if(schedulerInterface != null) {
+                            schedulerInterface.updateState(this.id, "STUCK");
+                            schedulerInterface.addErrorState(this.id, currentFloor);
+                        }
                         Thread.sleep(60000);
+                        if(schedulerInterface != null) {
+                            schedulerInterface.updateState(this.id, "STOPPED");
+                            schedulerInterface.removeErrorState(this.id, currentFloor);
+                        }
                         String fixed = "fixed";
                         byte[] requestByteArray = String.valueOf(fixed).getBytes();
                         DatagramPacket recievedPacket = new DatagramPacket(new byte[17], 17);    //Creates a packet to recieve into
@@ -214,13 +265,19 @@ public class Elevator implements Runnable {
                         socket.send(requestPacket);    //Send a request to the intermediate server
                         socket.receive(recievedPacket);    //Receive the response
                         System.out.println(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": is being repaired.");
-                        schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": is being repaired.");
+                        if(schedulerInterface != null) {
+                            schedulerInterface.updateOutput(java.time.LocalTime.now().format(dtf) + "  Elevator " + this.id + ": is being repaired.");
+                        }
                         currentState = State.DOOROPEN;
-                        schedulerInterface.updateState(this.id,"Doors Open");
+                        if(schedulerInterface != null) {
+                            schedulerInterface.updateState(this.id, "Doors Open");
+                        }
                         error = 0;
                     } else {
                         currentState = State.DOOROPEN;
-                        schedulerInterface.updateState(this.id,"Doors Open");
+                        if(schedulerInterface != null) {
+                            schedulerInterface.updateState(this.id, "Doors Open");
+                        }
                     }
                 }
             }
@@ -265,7 +322,7 @@ public class Elevator implements Runnable {
     public static int parseConfig() throws FileNotFoundException {
         ArrayList<String> configLines = new ArrayList<>();
 
-        File file = new File("src/building.config.txt");
+        File file = new File("building.config.txt");
         Scanner scanner = new Scanner(file);
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
@@ -316,6 +373,7 @@ public class Elevator implements Runnable {
             double real = -b / (2 * a);
             double imaginary = Math.sqrt(-determinant) / (2 * a);
         }
+
         return root1;
     }
 
@@ -330,7 +388,7 @@ public class Elevator implements Runnable {
     }
 
     public SchedulerInterface getElevatorInterface() {
-        return schedulerInterface;
+            return schedulerInterface;
     }
 
     public static void main(String[] args) throws FileNotFoundException {
@@ -339,13 +397,16 @@ public class Elevator implements Runnable {
 
         for (int i = 1; i <= elevatorCount; i++) {
             Elevator elevator = new Elevator(1, 23 + i, i, new SchedulerInterface());
-            elevator.getElevatorInterface().addSchedulerView(schedulerView);
+            if(elevator.getElevatorInterface() != null) {
+                elevator.getElevatorInterface().addSchedulerView(schedulerView);
+            }
 
             new Thread(elevator, "Elevator " + i).start();
         }
 
     }
 }
+
 
 
 		

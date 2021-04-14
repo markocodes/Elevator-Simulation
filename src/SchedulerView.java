@@ -7,48 +7,27 @@ import java.util.Scanner;
 
 public class SchedulerView extends JFrame {
 
-    private JScrollPane consoleScrollPane;
-    private JScrollPane requestScrollPane;
+    private final DefaultListModel<String> consoleOutput = new DefaultListModel<>();
 
-    private DefaultListModel<String> requests = new DefaultListModel<>();
-    private JList<String> requestList;
+    private final ArrayList<JPanel> elevator1;
+    private final ArrayList<JPanel> elevator2;
+    private final ArrayList<JPanel> elevator3;
+    private final ArrayList<JPanel> elevator4;
 
-    private DefaultListModel<String> consoleOutput = new DefaultListModel<>();
-    private JList<String> consoleList;
+    private final JTextField elevator1Dest;
+    private final JTextField elevator2Dest;
+    private final JTextField elevator3Dest;
+    private final JTextField elevator4Dest;
 
-    private JPanel consoleOutputPanel;
+    private final JTextField elevator1State;
+    private final JTextField elevator2State;
+    private final JTextField elevator3State;
+    private final JTextField elevator4State;
 
-    private JPanel liveTrackingPanelGraphic;
-    private JPanel liveTrackingPanel;
-    private JPanel consolePanel;
-
-    private JPanel liveTrackingPanelHeader;
-
-    private JPanel timingPanel;
-    private JTextField doorCloseTime;
-    private JTextField totalTime;
-
-    private ArrayList<JPanel> elevator1;
-    private ArrayList<JPanel> elevator2;
-    private ArrayList<JPanel> elevator3;
-    private ArrayList<JPanel> elevator4;
-
-    private ArrayList<JPanel> lamps;
-
-    private JTextField elevator1Dest;
-    private JTextField elevator2Dest;
-    private JTextField elevator3Dest;
-    private JTextField elevator4Dest;
-
-    private JTextField elevator1State;
-    private JTextField elevator2State;
-    private JTextField elevator3State;
-    private JTextField elevator4State;
-
-    private JTextField elevator1Direction;
-    private JTextField elevator2Direction;
-    private JTextField elevator3Direction;
-    private JTextField elevator4Direction;
+    private final JTextField elevator1Direction;
+    private final JTextField elevator2Direction;
+    private final JTextField elevator3Direction;
+    private final JTextField elevator4Direction;
 
 
     public SchedulerView(){
@@ -57,8 +36,9 @@ public class SchedulerView extends JFrame {
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setLayout(new FlowLayout());
 
-        requestScrollPane = new JScrollPane();
-        requestList = new JList<>(requests);
+        JScrollPane requestScrollPane = new JScrollPane();
+        DefaultListModel<String> requests = new DefaultListModel<>();
+        JList<String> requestList = new JList<>(requests);
 
         for(String s: readFile()){
             requests.addElement(s);
@@ -69,11 +49,10 @@ public class SchedulerView extends JFrame {
         requestScrollPane.setMaximumSize(new Dimension(700, 500));
 
 
-
-        consoleScrollPane = new JScrollPane();
+        JScrollPane consoleScrollPane = new JScrollPane();
         //consoleScrollPane.setLayout(new ScrollPaneLayout());
 
-        consoleList = new JList<>(consoleOutput);
+        JList<String> consoleList = new JList<>(consoleOutput);
         consoleList.setSize(new Dimension(700, 500));
         consoleList.setMaximumSize(new Dimension(700, 500));
 
@@ -81,40 +60,36 @@ public class SchedulerView extends JFrame {
         consoleScrollPane.setSize(new Dimension(700, 500));
         consoleScrollPane.setMaximumSize(new Dimension(700, 500));
 
-        doorCloseTime = new JTextField();
-        totalTime = new JTextField();
-        doorCloseTime.setEditable(false);
-        totalTime.setEditable(false);
 
-        timingPanel = new JPanel();
-        timingPanel.setLayout(new BoxLayout(timingPanel, BoxLayout.Y_AXIS));
+        JPanel legendPanel = new JPanel();
+        legendPanel.setLayout(new BoxLayout(legendPanel, BoxLayout.Y_AXIS));
 
-        timingPanel.add(new JLabel("Elevator Door Close Time:"));
-        timingPanel.add(doorCloseTime);
-        timingPanel.add(new JLabel("Total execution time:"));
-        timingPanel.add(totalTime);
+        legendPanel.add(new JLabel("YELLOW boxes show the location of an elevator"));
+        legendPanel.add(new JLabel("RED boxes show an elevator error"));
 
 
-
-        consoleOutputPanel = new JPanel();
-        consoleOutputPanel.add(new JLabel("CONSOLE OUTPUT"));
+        JPanel consoleOutputPanel = new JPanel();
+        consoleOutputPanel.add(new JLabel("CONSOLE OUTPUT:"));
 
         consoleOutputPanel.setLayout(new BoxLayout(consoleOutputPanel, BoxLayout.Y_AXIS));
         //consoleOutputPanel.setMaximumSize(new Dimension(700, 500));
         consoleOutputPanel.add(consoleScrollPane);
         consoleOutputPanel.add(new JLabel(" "));
-        consoleOutputPanel.add(new JLabel("INPUT FILE"));
+        consoleOutputPanel.add(new JLabel("INPUT FILE:"));
+
         consoleOutputPanel.add(requestScrollPane);
-        consoleOutputPanel.add(timingPanel);
+        consoleOutputPanel.add(new JLabel(" "));
+        consoleOutputPanel.add(legendPanel);
+        //consoleOutputPanel.add(timingPanel);
 
 
-        liveTrackingPanelHeader = new JPanel();
+        JPanel liveTrackingPanelHeader = new JPanel();
 
-        liveTrackingPanel = new JPanel();
+        JPanel liveTrackingPanel = new JPanel();
         liveTrackingPanel.setLayout(new BoxLayout(liveTrackingPanel, BoxLayout.Y_AXIS));
 
-        consolePanel = new JPanel();
-        liveTrackingPanelGraphic = new JPanel();
+        JPanel consolePanel = new JPanel();
+        JPanel liveTrackingPanelGraphic = new JPanel();
 
         liveTrackingPanelGraphic.setLayout(new FlowLayout());
         //liveTrackingPanelGraphic.setSize(new Dimension(450, 1000));
@@ -140,21 +115,21 @@ public class SchedulerView extends JFrame {
 //        liveTrackingPanel.add(elevator2Panel);
 
 
-        JLabel destLabel1 = new JLabel("\nDestination:");
-        JLabel stateLabel1 = new JLabel("\nState:");
-        JLabel directionLabel1 = new JLabel("\nDirection");
+        JLabel destLabel1 = new JLabel("\nDESTINATION:");
+        JLabel stateLabel1 = new JLabel("\nSTATE:");
+        JLabel directionLabel1 = new JLabel("\nDIRECTION:");
 
-        JLabel destLabel2 = new JLabel("\nDestination:");
-        JLabel stateLabel2 = new JLabel("\nState:");
-        JLabel directionLabel2 = new JLabel("\nDirection");
+        JLabel destLabel2 = new JLabel("\nDESTINATION:");
+        JLabel stateLabel2 = new JLabel("\nSTATE:");
+        JLabel directionLabel2 = new JLabel("\nDIRECTION");
 
-        JLabel destLabel3 = new JLabel("\nDestination:");
-        JLabel stateLabel3 = new JLabel("\nState:");
-        JLabel directionLabel3 = new JLabel("\nDirection");
+        JLabel destLabel3 = new JLabel("\nDESTINATION:");
+        JLabel stateLabel3 = new JLabel("\nSTATE:");
+        JLabel directionLabel3 = new JLabel("\nDIRECTION:");
 
-        JLabel destLabel4 = new JLabel("\nDestination:");
-        JLabel stateLabel4 = new JLabel("\nState:");
-        JLabel directionLabel4 = new JLabel("\nDirection");
+        JLabel destLabel4 = new JLabel("\nDESTINATION:");
+        JLabel stateLabel4 = new JLabel("\nSTATE:");
+        JLabel directionLabel4 = new JLabel("\nDIRECTION:");
 
 
         JLabel blankSpace1 = new JLabel(" ");
@@ -243,20 +218,20 @@ public class SchedulerView extends JFrame {
         elevator3= new ArrayList<>();
         elevator4= new ArrayList<>();
 
-        lamps = new ArrayList<>();
+        //lamps = new ArrayList<>();
 
         for(int i = 0; i < 22; i++){
             elevator1.add(new JPanel());
             elevator2.add(new JPanel());
             elevator3.add(new JPanel());
             elevator4.add(new JPanel());
-            lamps.add(new JPanel());
+            //lamps.add(new JPanel());
 
             elevator1.get(i).setBackground(Color.white);
             elevator2.get(i).setBackground(Color.white);
             elevator3.get(i).setBackground(Color.white);
             elevator4.get(i).setBackground(Color.white);
-            lamps.get(i).setBackground(Color.white);
+            //lamps.get(i).setBackground(Color.white);
         }
 
         for(int i = 22; i > 0; i--){
@@ -264,7 +239,7 @@ public class SchedulerView extends JFrame {
             elevator2.get(i-1).add(new JLabel(String.valueOf(i)));
             elevator3.get(i-1).add(new JLabel(String.valueOf(i)));
             elevator4.get(i-1).add(new JLabel(String.valueOf(i)));
-            lamps.get(i-1).add(new JLabel(String.valueOf(i)));
+            //lamps.get(i-1).add(new JLabel(String.valueOf(i)));
         }
 
         for(int i = 21; i >= 0; i--){
@@ -272,7 +247,7 @@ public class SchedulerView extends JFrame {
             elevator2Panel.add(elevator2.get(i));
             elevator3Panel.add(elevator3.get(i));
             elevator4Panel.add(elevator4.get(i));
-            lampsPanel.add(lamps.get(i));
+            //lampsPanel.add(lamps.get(i));
         }
 
         elevator1.get(0).setBackground(Color.yellow);
@@ -361,14 +336,6 @@ public class SchedulerView extends JFrame {
         }
     }
 
-    public void addFloorRequest(){
-
-    }
-
-    public void removeFloorRequest(){
-
-    }
-
     public void addOutput(String output){
 //        consoleScrollPane.getViewport().add(new JLabel(output));
 //        consoleScrollPane.revalidate();
@@ -428,6 +395,37 @@ public class SchedulerView extends JFrame {
         }
     }
 
+    public void addErrorState(int elevatorID, int floorNum){
+        if(elevatorID == 1){
+            elevator1.get(floorNum-1).setBackground(Color.PINK);
+        }
+        else if(elevatorID == 2){
+            elevator2.get(floorNum-1).setBackground(Color.PINK);
+        }
+        else if(elevatorID == 3){
+            elevator3.get(floorNum-1).setBackground(Color.PINK);
+        }
+        else{
+            elevator4.get(floorNum-1).setBackground(Color.PINK);
+        }
+    }
+
+    public void removeErrorState(int elevatorID, int floorNum){
+        if(elevatorID == 1){
+            elevator1.get(floorNum-1).setBackground(Color.YELLOW);
+        }
+        else if(elevatorID == 2){
+            elevator1.get(floorNum-1).setBackground(Color.YELLOW);
+        }
+        else if(elevatorID == 3){
+            elevator1.get(floorNum-1).setBackground(Color.YELLOW);
+        }
+        else{
+            elevator1.get(floorNum-1).setBackground(Color.YELLOW);
+        }
+    }
+
+
     public void updateDirection(int elevatorID, String direction){
         if(elevatorID == 1){
             elevator1Direction.setText(direction);
@@ -443,30 +441,6 @@ public class SchedulerView extends JFrame {
         }
     }
 
-    public void addLamps(int floor){
-        //lamps.get(floor-1).setBackground(Color.RED);
-        elevator1.get(floor-1).setBackground(Color.CYAN);
-        elevator2.get(floor-1).setBackground(Color.CYAN);
-        elevator3.get(floor-1).setBackground(Color.CYAN);
-        elevator4.get(floor-1).setBackground(Color.CYAN);
-
-    }
-
-    public void removeLamps(int floor){
-        // lamps.get(floor-1).setBackground(Color.WHITE);
-        elevator1.get(floor-1).setBackground(Color.WHITE);
-        elevator2.get(floor-1).setBackground(Color.WHITE);
-        elevator3.get(floor-1).setBackground(Color.WHITE);
-        elevator4.get(floor-1).setBackground(Color.WHITE);
-    }
-
-    public void updateDoorTime(long time){
-        doorCloseTime.setText(String.valueOf(time));
-    }
-
-    public void updateTotalTime(long time){
-        totalTime.setText(String.valueOf(time));
-    }
 
 
 }

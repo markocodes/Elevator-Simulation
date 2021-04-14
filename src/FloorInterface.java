@@ -20,7 +20,7 @@ public class FloorInterface {
         floorView.removeLamps(floor, upOrDown);
     }
 
-    public void updateTotalTime(long time){
+    public void updateTotalTime(String time){
         floorView.updateTotalTime(time);
     }
 

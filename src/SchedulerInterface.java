@@ -1,5 +1,5 @@
 public class SchedulerInterface {
-    //private Elevator elevator;
+
     private SchedulerView schedulerView;
 
     public SchedulerInterface(){
@@ -27,21 +27,15 @@ public class SchedulerInterface {
         schedulerView.updateDirection(elevatorID, direction);
     }
 
-    public void removeLamps(int floor){
-        schedulerView.removeLamps(floor);
+    public void addErrorState(int elevatorID, int floorNum){
+        schedulerView.addErrorState(elevatorID, floorNum);
     }
 
-    public void addLamps(int floor){
-        schedulerView.addLamps(floor);
+    public void removeErrorState(int elevatorID, int floorNum){
+        schedulerView.removeErrorState(elevatorID, floorNum);
     }
 
-    public void updateDoorTime(long time){
-        schedulerView.updateDoorTime(time);
-    }
 
-    public void updateTotalTime(long time){
-        schedulerView.updateTotalTime(time);
-    }
 
 
 }
