@@ -402,7 +402,6 @@ public class Scheduler implements Runnable {
 										System.out.println("\n########################################");
 										System.out.println("\nTime to complete input file: " + String.format("%.02f",tempTime/1000) + " seconds");
 										System.out.println("\n########################################");
-										ended = true;
 
 										if(floorInterface != null){
 											floorInterface.updateTotalTime(String.format("%.02f",tempTime/1000));
@@ -411,6 +410,10 @@ public class Scheduler implements Runnable {
 												floorInterface.removeLamps(i, 0);
 											}
 										}
+
+										ended = true;
+
+
 									}
 								}
 							}
